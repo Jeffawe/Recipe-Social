@@ -55,16 +55,22 @@ const initialState: RecipeDetailState = {
   error: null
 };
 
-
-export const fetchRecipeDetails = createAsyncThunk
-(
+export const fetchRecipeDetails = createAsyncThunk<
+  Recipe,              // Return type
+  string,              // Argument type (recipeId)
+  { rejectValue: string } // ThunkAPI configuration
+>(
   'recipes/fetchRecipeDetails',
   async (recipeId, { rejectWithValue }) => {
     try {
+      // Make an API call to fetch recipe details
       const response = await axios.get(`/api/routes/${recipeId}`);
-      return response.data;
-    } catch (error:any) {
-      return rejectWithValue(error.response.data);
+      return response.data as Recipe; // Ensure response type safety
+    } catch (error: any) {
+      // Handle error and provide a fallback message
+      return rejectWithValue(
+        error.response?.data?.message || 'Failed to fetch recipe'
+      );
     }
   }
 );

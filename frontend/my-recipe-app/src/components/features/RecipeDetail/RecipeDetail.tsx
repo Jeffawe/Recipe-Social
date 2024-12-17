@@ -1,17 +1,21 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchRecipeDetails, Ingredient, RecipeDirection, clearRecipeDetail, RecipeDetailState } from './recipeDetailSlice'
+import { fetchRecipeDetails, Ingredient, RecipeDirection, clearRecipeDetail } from './recipeDetailSlice'
+import { RootState,  useAppDispatch, useAppSelector } from '../store';
+
+// interface RootState {
+//   recipeDetail: RecipeDetailState;
+// }
 
 const RecipeDetail : React.FC  = () => {
   const { id } = useParams<{ id: string }>();
-  const dispatch = useDispatch();
-  const { recipe, loading, error } = useSelector((state:any) => state.recipeDetail);
+  const dispatch = useAppDispatch();
+  const { recipe, loading, error } = useAppSelector((state:RootState) => state.recipeDetail);
 
   useEffect(() => {
     // Fetch recipe when component mounts
     if (id) {
-      dispatch(fetchRecipeDetails() as any);
+      dispatch(fetchRecipeDetails(id));
     }
 
     // Cleanup function to clear recipe detail when component unmounts
@@ -31,7 +35,7 @@ const RecipeDetail : React.FC  = () => {
   if (error) {
     return (
       <div className="text-red-500 p-4">
-        Error loading recipe: {error.message}
+        Error loading recipe: {error}
       </div>
     );
   }
