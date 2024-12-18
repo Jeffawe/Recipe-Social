@@ -1,7 +1,46 @@
+import { Request, Response } from 'express';
+import multer from 'multer';
+import multerS3 from 'multer-s3';
+import AWS from 'aws-sdk';
+import { v4 as uuidv4 } from 'uuid';
+
+// AWS Configuration
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION
+});
+
+const s3 = new AWS.S3();
+
+// Multer S3 upload configuration
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: process.env.S3_BUCKET_NAME || '',
+    acl: 'public-read',
+    key: function (req, file, cb) {
+      const fileName = `recipes/${uuidv4()}-${file.originalname}`;
+      cb(null, fileName);
+    }
+  }),
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Not an image! Please upload an image.'), false);
+    }
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+});
+
 const Recipe = require('../models/Recipe');
 const User = require('../models/User');
 
 exports.createRecipe = async (req, res) => {
+    
     try {
         // Extract recipe data from request body
         const {
@@ -13,7 +52,6 @@ exports.createRecipe = async (req, res) => {
             cookingTime,
             nutrition,
             category,
-            dietaryInfo
         } = req.body;
 
            // First, find the test user
@@ -25,17 +63,16 @@ exports.createRecipe = async (req, res) => {
 
         // Create new recipe object
         const newRecipe = new Recipe({
-            title,
-            description,
-            ingredients,
-            directions,
-            images,
-            cookingTime,
-            nutrition,
-            category,
-            // Assuming user is authenticated and user ID is available
-            author: testUser._id // This comes from authentication middleware
-        });
+            title: title,
+            description: description,
+            ingredients : JSON.parse(ingredients),
+            directions : JSON.parse(directions),
+            images: imageUrls,
+            cookingTime: JSON.parse(cookingTime),
+            nutrition: JSON.parse(nutrition),
+            category: category,
+            author: testUser._id
+          });
 
         // Save recipe to database
         const savedRecipe = await newRecipe.save();

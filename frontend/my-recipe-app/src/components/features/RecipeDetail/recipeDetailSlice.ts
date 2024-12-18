@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 // Define the Recipe type based on your Mongoose schema
 export interface Ingredient {
   name: string;
@@ -64,7 +66,7 @@ export const fetchRecipeDetails = createAsyncThunk<
   async (recipeId, { rejectWithValue }) => {
     try {
       // Make an API call to fetch recipe details
-      const response = await axios.get(`/api/routes/${recipeId}`);
+      const response = await axios.get(`${API_BASE_URL}/api/routes/${recipeId}`);
       return response.data as Recipe; // Ensure response type safety
     } catch (error: any) {
       // Handle error and provide a fallback message

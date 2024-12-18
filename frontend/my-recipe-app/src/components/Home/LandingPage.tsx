@@ -6,7 +6,7 @@ const LandingPage : React.FC = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white flex flex-col items-center justify-center text-center px-4">
+        <div className="py-20 bg-gradient-to-br from-orange-50 to-white flex flex-col items-center justify-center text-center px-4">
           <div className="max-w-md w-full space-y-4">
             <div>
               <h2 className="text-3xl font-semibold text-gray-800 mb-4">

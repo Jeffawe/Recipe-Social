@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 interface Ingredient {
   name: string;
   quantity: string;
@@ -25,6 +27,18 @@ const AddRecipe: React.FC = () => {
     { step: 1, instruction: '' }
   ]);
   const [images, setImages] = useState<File[]>([]);
+  const [cookingTime, setCookingTime] = useState({
+    prep: 0,
+    cook: 0
+  });
+  const [nutrition, setNutrition] = useState({
+    servings: 0,
+    calories: 0,
+    protein: 0,
+    carbohydrates: 0,
+    fat: 0
+  });
+  const [category, setCategory] = useState('Dinner');
 
   const handleExit = () => {
     const isConfirmed = window.confirm('Are you sure you want to exit? Any unsaved changes will be lost.');
@@ -33,40 +47,63 @@ const AddRecipe: React.FC = () => {
     }
   };
 
+  const validateInputs = () => {
+    if (!title.trim()) return 'Title is required.';
+    if (ingredients.some((ing) => !ing.name.trim())) return 'Each ingredient must have a name.';
+    if (directions.some((dir) => !dir.instruction.trim())) return 'Each direction must have an instruction.';
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Create FormData for file upload
-    const formData = new FormData();
+    const error = validateInputs();
+    if (error) {
+      alert(error);
+      return;
+    }
 
-    // Append text fields
+    // Basic validation
+    if (ingredients.length === 0 || ingredients.some(ing => !ing.name.trim())) {
+      alert('Please add at least one ingredient with a name');
+      return;
+    }
+
+    if (directions.length === 0 || directions.some(dir => !dir.instruction.trim())) {
+      alert('Please add at least one cooking direction');
+      return;
+    }
+
+    // Create FormData for multipart upload
+    const formData = new FormData();
+    
+    // Append recipe details
     formData.append('title', title);
     formData.append('description', description);
-
-    // Append ingredients
+    
+    // Stringify complex objects
     formData.append('ingredients', JSON.stringify(ingredients));
-
-    // Append directions
     formData.append('directions', JSON.stringify(directions));
+    formData.append('cookingTime', JSON.stringify(cookingTime));
+    formData.append('nutrition', JSON.stringify(nutrition));
+    formData.append('category', category);
 
     // Append images
-    images.forEach((image, index) => {
+    images.forEach((image) => {
       formData.append('images', image);
     });
 
     try {
-      const response:any = await axios.post('/api/routes/', formData, {
+      const response:any = await axios.post(`${API_BASE_URL}/api/recipes`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
 
-      // Navigate to the new recipe's detail page
       navigate(`/recipe/${response.data._id}`);
-      navigate('/');
-    } catch (error) {
-      console.error('Error creating recipe:', error);
-      // Handle error (show error message, etc.)
+    } catch (error: any) {
+      console.error('Error creating recipe:', error.response?.data || error.message);
+      alert('Failed to create recipe. Please check your inputs.');
     }
   };
 
@@ -81,14 +118,22 @@ const AddRecipe: React.FC = () => {
     ]);
   };
 
+  // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setImages([...images, ...Array.from(e.target.files)]);
+      const newImages = Array.from(e.target.files)
+        .slice(0, 5 - images.length);
+      setImages((prevImages) => [...prevImages, ...newImages]);
     }
   };
 
+  // Remove image
+  const removeImage = (indexToRemove: number) => {
+    setImages((prevImages) => prevImages.filter((_, index) => index !== indexToRemove));
+  };
+
   return (
-    <div className="container mx-auto p-6 relative">
+    <div className="mx-auto p-6 relative bg-gradient-to-br from-orange-50 to-white">
       <button
         type="button"
         onClick={handleExit}
@@ -98,12 +143,12 @@ const AddRecipe: React.FC = () => {
         <X size={24} />
       </button>
 
-      <h1 className="text-3xl font-bold mb-6">Add New Recipe</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-600">Add New Recipe</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title */}
         <div>
-          <label className="block mb-2">Recipe Title</label>
+          <label className="block mb-2 text-gray-600">Recipe Title</label>
           <input
             type="text"
             value={title}
@@ -115,7 +160,7 @@ const AddRecipe: React.FC = () => {
 
         {/* Description */}
         <div>
-          <label className="block mb-2">Description</label>
+          <label className="block mb-2 text-gray-600">Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -126,7 +171,7 @@ const AddRecipe: React.FC = () => {
 
         {/* Ingredients Section */}
         <div>
-          <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-600">Ingredients</h2>
           {ingredients.map((ingredient, index) => (
             <div key={index} className="flex space-x-2 mb-2">
               <input
@@ -142,7 +187,7 @@ const AddRecipe: React.FC = () => {
                 required
               />
               <input
-                type="text"
+                type="number"
                 placeholder="Quantity"
                 value={ingredient.quantity}
                 onChange={(e) => {
@@ -186,7 +231,7 @@ const AddRecipe: React.FC = () => {
 
         {/* Directions Section */}
         <div>
-          <h2 className="text-2xl font-semibold mb-4">Directions</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-600">Directions</h2>
           {directions.map((direction, index) => (
             <div key={index} className="flex items-center space-x-2 mb-2">
               <span className="font-bold">{direction.step}.</span>
@@ -212,28 +257,42 @@ const AddRecipe: React.FC = () => {
           </button>
         </div>
 
-        {/* Image Upload */}
         <div>
-          <label className="block mb-2">Upload Images</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="w-full p-2 border rounded"
-          />
-          {images.length > 0 && (
-            <div className="mt-2 flex space-x-2">
-              {images.map((image, index) => (
-                <img
-                  key={index}
-                  src={URL.createObjectURL(image)}
-                  alt={`Preview ${index}`}
-                  className="w-24 h-24 object-cover rounded"
-                />
-              ))}
-            </div>
-          )}
+          {/* Image Upload */}
+          <div>
+            <label className="block mb-2 text-gray-600">Upload Images</label>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="w-full p-2 border rounded"
+            />
+
+            {/* Image Preview Section */}
+            {images.length > 0 && (
+              <div className="mt-2 flex space-x-2 flex-wrap">
+                {images.map((image, index) => (
+                  <div key={index} className="relative">
+                    {/* Image Preview */}
+                    <img
+                      src={URL.createObjectURL(image)}
+                      alt={`Preview ${index}`}
+                      className="w-24 h-24 object-cover rounded"
+                    />
+
+                    {/* Remove Button */}
+                    <button
+                      onClick={() => removeImage(index)}
+                      className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Submit Button */}
