@@ -1,93 +1,54 @@
-import { Request, Response } from 'express';
 import multer from 'multer';
-import multerS3 from 'multer-s3';
-import AWS from 'aws-sdk';
-import { v4 as uuidv4 } from 'uuid';
-
-// AWS Configuration
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION
-});
-
-const s3 = new AWS.S3();
-
-// Multer S3 upload configuration
-const upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: process.env.S3_BUCKET_NAME || '',
-    acl: 'public-read',
-    key: function (req, file, cb) {
-      const fileName = `recipes/${uuidv4()}-${file.originalname}`;
-      cb(null, fileName);
-    }
-  }),
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Not an image! Please upload an image.'), false);
-    }
-  },
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
-});
-
+import { uploadImagesToS3 } from '../services/s3Service';
 const Recipe = require('../models/Recipe');
 const User = require('../models/User');
 
-exports.createRecipe = async (req, res) => {
-    
-    try {
-        // Extract recipe data from request body
-        const {
-            title,
-            description,
-            ingredients,
-            directions,
-            images,
-            cookingTime,
-            nutrition,
-            category,
-        } = req.body;
+const upload = multer({ storage: multer.memoryStorage() });
 
-           // First, find the test user
-        const testUser = await User.findOne({ isTestUser: true });
-
-        if (!testUser) {
-            return res.status(400).json({ message: 'No test user found. Create a test user first.' });
+export const createRecipe = async (req, res) => {
+    upload.array('images', 3)(req, res, async (err) => {
+        if (err) {
+            return res.status(400).json({
+                message: 'Image upload failed',
+                error: err.message
+            });
         }
 
-        // Create new recipe object
-        const newRecipe = new Recipe({
-            title: title,
-            description: description,
-            ingredients : JSON.parse(ingredients),
-            directions : JSON.parse(directions),
-            images: imageUrls,
-            cookingTime: JSON.parse(cookingTime),
-            nutrition: JSON.parse(nutrition),
-            category: category,
-            author: testUser._id
-          });
+        try {
+            // Upload images to S3
+            const imageUrls = req.files ? await uploadImagesToS3(req.files) : [];
 
-        // Save recipe to database
-        const savedRecipe = await newRecipe.save();
+            // Parse JSON strings back to arrays
+            const ingredients = JSON.parse(req.body.ingredients);
+            const directions = JSON.parse(req.body.directions);
 
-        // Respond with created recipe
-        res.status(201).json({
-            message: 'Recipe created successfully',
-            recipe: savedRecipe
-        });
-    } catch (error) {
-        res.status(400).json({
-            message: 'Error creating recipe',
-            error: error.message
-        });
-    }
+            const testUser = await User.findOne({ isTestUser: true });
+
+            if (!testUser) {
+                return res.status(400).json({ message: 'No test user found. Create a test user first.' });
+            }
+
+            const newRecipe = new Recipe({
+                title: req.body.title,
+                description: req.body.description,
+                ingredients,
+                directions,
+                images: imageUrls,
+                cookingTime: JSON.parse(req.body.cookingTime),
+                nutrition: JSON.parse(req.body.nutrition),
+                category: req.body.category,
+                author: testUser._id
+            });
+
+            await newRecipe.save();
+            res.status(201).json(newRecipe);
+        } catch (error) {
+            res.status(500).json({
+                message: 'Error creating recipe',
+                error: error.message
+            });
+        }
+    });
 };
 
 // Get all recipes with filtering and pagination
