@@ -1,28 +1,32 @@
-import AWS from 'aws-sdk';
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from 'uuid';
 
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+const s3 = new S3Client({
     region: process.env.AWS_REGION
 });
 
 export const uploadImagesToS3 = async (files, folder = 'recipes') => {
     try {
-        const uploadPromises = files.map(file => {
+        const uploadPromises = files.map(async (file) => {
             const fileName = `${folder}/${uuidv4()}-${file.originalname}`;
-            return s3.upload({
+            const params = {
                 Bucket: process.env.S3_BUCKET_NAME,
                 Key: fileName,
                 Body: file.buffer,
-                ACL: 'public-read',
                 ContentType: file.mimetype
-            }).promise();
+            };
+
+            const command = new PutObjectCommand(params);
+            await s3.send(command);
+
+            return {
+                fileName: fileName,
+                size: file.size
+            };
         });
 
-        // Wait for all files to upload
         const uploadedFiles = await Promise.all(uploadPromises);
-        return uploadedFiles.map(file => ({ url: file.Location }));
+        return uploadedFiles;
     } catch (error) {
         throw new Error('Error uploading images to S3: ' + error.message);
     }

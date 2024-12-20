@@ -1,24 +1,23 @@
-// Import required modules
-require('dotenv').config(); // Load environment variables
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+import dotenv from 'dotenv';
+dotenv.config();
+import express, { json } from 'express';
+import { connect } from 'mongoose';
+import cors from 'cors';
 
 // Import routes
-const recipeRoutes = require('./routes/recipeRoutes');
-const userRoutes = require('./routes/userRoutes.js');
+import recipeRoutes from './routes/recipeRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 // Create Express application
 const app = express();
 
 // Middleware
 app.use(cors()); // Enable CORS
-app.use(express.json()); // Parse JSON bodies
+app.use(json()); // Parse JSON bodies
 
 // Database Connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true
 })
 .then(() => console.log('MongoDB connected successfully'))
 .catch((err) => console.error('MongoDB connection error:', err));

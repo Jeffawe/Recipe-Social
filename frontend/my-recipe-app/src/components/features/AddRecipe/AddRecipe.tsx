@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const MAX_FILE_SIZE = parseInt(import.meta.env.VITE_MAX_FILE_SIZE, 10);
+const MAX_FILES = parseInt(import.meta.env.VITE_MAX_FILES, 10)
 
 interface Ingredient {
   name: string;
@@ -39,6 +41,7 @@ const AddRecipe: React.FC = () => {
     fat: 0
   });
   const [category, setCategory] = useState('Dinner');
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleExit = () => {
     const isConfirmed = window.confirm('Are you sure you want to exit? Any unsaved changes will be lost.');
@@ -74,27 +77,29 @@ const AddRecipe: React.FC = () => {
       return;
     }
 
-    // Create FormData for multipart upload
-    const formData = new FormData();
-    
-    // Append recipe details
-    formData.append('title', title);
-    formData.append('description', description);
-    
-    // Stringify complex objects
-    formData.append('ingredients', JSON.stringify(ingredients));
-    formData.append('directions', JSON.stringify(directions));
-    formData.append('cookingTime', JSON.stringify(cookingTime));
-    formData.append('nutrition', JSON.stringify(nutrition));
-    formData.append('category', category);
-
-    // Append images
-    images.forEach((image) => {
-      formData.append('images', image);
-    });
+    setIsUploading(true); // Start loading
 
     try {
-      const response:any = await axios.post(`${API_BASE_URL}/api/recipes`, formData, {
+      // Create FormData for multipart upload
+      const formData = new FormData();
+
+      // Append recipe details
+      formData.append('title', title);
+      formData.append('description', description);
+
+      // Stringify complex objects
+      formData.append('ingredients', JSON.stringify(ingredients));
+      formData.append('directions', JSON.stringify(directions));
+      formData.append('cookingTime', JSON.stringify(cookingTime));
+      formData.append('nutrition', JSON.stringify(nutrition));
+      formData.append('category', category);
+
+      // Append images
+      images.forEach((image) => {
+        formData.append('images', image);
+      });
+
+      const response: any = await axios.post(`${API_BASE_URL}/api/recipes`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -104,6 +109,8 @@ const AddRecipe: React.FC = () => {
     } catch (error: any) {
       console.error('Error creating recipe:', error.response?.data || error.message);
       alert('Failed to create recipe. Please check your inputs.');
+    } finally {
+      setIsUploading(false); // End loading regardless of outcome
     }
   };
 
@@ -121,9 +128,33 @@ const AddRecipe: React.FC = () => {
   // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newImages = Array.from(e.target.files)
-        .slice(0, 5 - images.length);
-      setImages((prevImages) => [...prevImages, ...newImages]);
+      const files = Array.from(e.target.files);
+
+      // Check if adding new files exceeds maximum count
+      if (images.length + files.length > MAX_FILES) {
+        alert(`You can only upload up to ${MAX_FILES} images. You already have ${images.length} images.`);
+        e.target.value = ''; // Reset input
+        return;
+      }
+
+      // Validate each file
+      const validFiles = files.filter(file => {
+        // Check file size
+        if (file.size > MAX_FILE_SIZE) {
+          alert(`File "${file.name}" is too large. Maximum size is 5MB.`);
+          return false;
+        }
+
+        // Check file type (optional but recommended)
+        if (!file.type.startsWith('image/')) {
+          alert(`File "${file.name}" is not an image.`);
+          return false;
+        }
+
+        return true;
+      });
+
+      setImages(prevImages => [...prevImages, ...validFiles]);
     }
   };
 
@@ -260,13 +291,19 @@ const AddRecipe: React.FC = () => {
         <div>
           {/* Image Upload */}
           <div>
-            <label className="block mb-2 text-gray-600">Upload Images</label>
+            <label className="block mb-2 text-gray-600">
+              Upload Images ({images.length}/{MAX_FILES})
+            </label>
+            <div className="text-sm text-gray-500 mb-2">
+              Maximum 5 images, each up to 5MB
+            </div>
             <input
               type="file"
               multiple
               accept="image/*"
               onChange={handleImageUpload}
               className="w-full p-2 border rounded"
+              disabled={images.length >= MAX_FILES}
             />
 
             {/* Image Preview Section */}
@@ -298,11 +335,21 @@ const AddRecipe: React.FC = () => {
         {/* Submit Button */}
         <button
           type="submit"
+          disabled={isUploading}
           className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
         >
-          Create Recipe
+          {isUploading ? 'Creating Recipe...' : 'Create Recipe'}
         </button>
       </form>
+      {isUploading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-500 mx-auto mb-4"></div>
+            <p className="text-xl font-semibold text-gray-700">Creating Recipe...</p>
+            <p className="text-sm text-gray-500 mt-2">Please wait while we save your recipe</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

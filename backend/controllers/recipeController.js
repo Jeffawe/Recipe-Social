@@ -1,58 +1,96 @@
-import multer from 'multer';
-import { uploadImagesToS3 } from '../services/s3Service';
-const Recipe = require('../models/Recipe');
-const User = require('../models/User');
-
-const upload = multer({ storage: multer.memoryStorage() });
+import { uploadImagesToS3 } from './services/s3services.js';
+import Recipe from '../models/Recipe.js';
+import User from '../models/User.js';
 
 export const createRecipe = async (req, res) => {
-    upload.array('images', 3)(req, res, async (err) => {
-        if (err) {
-            return res.status(400).json({
-                message: 'Image upload failed',
-                error: err.message
-            });
+    try {
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ message: 'No images provided' });
         }
 
-        try {
-            // Upload images to S3
-            const imageUrls = req.files ? await uploadImagesToS3(req.files) : [];
+        const uploadedImages = await uploadImagesToS3(req.files);
 
-            // Parse JSON strings back to arrays
-            const ingredients = JSON.parse(req.body.ingredients);
-            const directions = JSON.parse(req.body.directions);
+        const ingredients = JSON.parse(req.body.ingredients);
+        const directions = JSON.parse(req.body.directions);
 
-            const testUser = await User.findOne({ isTestUser: true });
+        const testUser = await User.findOne({ isTestUser: true });
 
-            if (!testUser) {
-                return res.status(400).json({ message: 'No test user found. Create a test user first.' });
-            }
-
-            const newRecipe = new Recipe({
-                title: req.body.title,
-                description: req.body.description,
-                ingredients,
-                directions,
-                images: imageUrls,
-                cookingTime: JSON.parse(req.body.cookingTime),
-                nutrition: JSON.parse(req.body.nutrition),
-                category: req.body.category,
-                author: testUser._id
-            });
-
-            await newRecipe.save();
-            res.status(201).json(newRecipe);
-        } catch (error) {
-            res.status(500).json({
-                message: 'Error creating recipe',
-                error: error.message
-            });
+        if (!testUser) {
+            return res.status(400).json({ message: 'No test user found. Create a test user first.' });
         }
-    });
-};
+
+        const newRecipe = new Recipe({
+            title: req.body.title,
+            description: req.body.description,
+            ingredients,
+            directions,
+            images: uploadedImages,
+            cookingTime: JSON.parse(req.body.cookingTime),
+            nutrition: JSON.parse(req.body.nutrition),
+            category: req.body.category,
+            author: testUser._id
+        });
+
+        await newRecipe.save();
+        res.status(201).json(newRecipe);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error creating recipe',
+            error: error.message
+        });
+    }
+}
+
+// export const createRecipe = async (req, res) => {
+
+//     upload.array('images', 3)(req, res, async (err) => {
+//         if (err) {
+//             return res.status(400).json({
+//                 message: 'Image upload failed',
+//                 error: err.message
+//             });
+//         }
+
+//         try {
+//             // Upload images to S3
+//             const imageUrls = req.files ? await uploadImagesToS3(req.files) : [];
+
+//             // Parse JSON strings back to arrays
+//             const ingredients = JSON.parse(req.body.ingredients);
+//             const directions = JSON.parse(req.body.directions);
+
+//             const testUser = await User.findOne({ isTestUser: true });
+
+//             if (!testUser) {
+//                 return res.status(400).json({ message: 'No test user found. Create a test user first.' });
+//             }
+
+//             const newRecipe = new Recipe({
+//                 title: req.body.title,
+//                 description: req.body.description,
+//                 ingredients,
+//                 directions,
+//                 images: imageUrls,
+//                 cookingTime: JSON.parse(req.body.cookingTime),
+//                 nutrition: JSON.parse(req.body.nutrition),
+//                 category: req.body.category,
+//                 author: testUser._id
+//             });
+
+//             await newRecipe.save();
+//             res.status(201).json(newRecipe);
+//         } catch (error) {
+//             res.status(500).json({
+//                 message: 'Error creating recipe',
+//                 error: error.message
+//             });
+//         }
+//     });
+// };
 
 // Get all recipes with filtering and pagination
-exports.getAllRecipes = async (req, res) => {
+
+export const getAllRecipes = async (req, res) => {
     try {
         // Extract query parameters
         const {
@@ -90,7 +128,7 @@ exports.getAllRecipes = async (req, res) => {
 };
 
 // Get a single recipe by ID
-exports.getSingleRecipe = async (req, res) => {
+export const getSingleRecipe = async (req, res) => {
     try {
         // Find recipe by ID and populate related data
         const recipe = await Recipe.findById(req.params.id)
@@ -110,7 +148,7 @@ exports.getSingleRecipe = async (req, res) => {
     }
 };
 
-exports.updateRecipe = async (req, res) => {
+export const updateRecipe = async (req, res) => {
     try {
         // Find recipe and check ownership
         const recipe = await Recipe.findById(req.params.id);
@@ -145,7 +183,7 @@ exports.updateRecipe = async (req, res) => {
 };
 
 // Delete a recipe
-exports.deleteRecipe = async (req, res) => {
+export const deleteRecipe = async (req, res) => {
     try {
         // Find recipe and check ownership
         const recipe = await Recipe.findById(req.params.id);
@@ -173,7 +211,7 @@ exports.deleteRecipe = async (req, res) => {
 };
 
 // Search recipes (basic implementation)
-exports.searchRecipes = async (req, res) => {
+export const searchRecipes = async (req, res) => {
     try {
         const { query } = req.query;
 

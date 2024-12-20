@@ -14,7 +14,9 @@
   ],
   "author": "Jeffery Ozoekwe-Awagu",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.716.0",
     "aws-sdk": "^2.1692.0",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",

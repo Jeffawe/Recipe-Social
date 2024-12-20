@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Define the schema for a Recipe
 const RecipeSchema = new mongoose.Schema({
@@ -45,9 +45,15 @@ const RecipeSchema = new mongoose.Schema({
 
   // Media attachments
   images: [{
-    url: {
-      type: String,      // URL to the image
+    fileName: {
+      type: String,
       required: true
+    },
+    url: {
+      type: String  // Can be generated on-the-fly or stored
+    },
+    size: {
+      type: Number  // in bytes, optional but useful
     }
   }],
 
@@ -115,4 +121,4 @@ RecipeSchema.index({
 });
 
 // Export the model
-module.exports = mongoose.model('Recipe', RecipeSchema);
+export default mongoose.model('Recipe', RecipeSchema);
