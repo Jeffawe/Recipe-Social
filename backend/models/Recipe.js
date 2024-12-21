@@ -91,6 +91,25 @@ const RecipeSchema = new mongoose.Schema({
       'Beverage'
     ]
   },
+  comments: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment'
+  }],
+  
+  faqs: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'FAQ'
+  }],
+
+  savedBy: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+
+  likes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
 
   // User who created the recipe
   author: {

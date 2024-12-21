@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import LandingPage from './LandingPage'
 import SearchBar from './SearchBar';
+import Explore from '../features/Explore/Explore';
 import { PlusIcon } from 'lucide-react';
 
 const Home: React.FC = () => {
@@ -16,6 +17,7 @@ const Home: React.FC = () => {
       <div className="w-full px-0 flex-grow">
         <LandingPage />
         <SearchBar />
+        <Explore />
       </div>
 
       {/* Add Recipe Button */}

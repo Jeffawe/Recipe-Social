@@ -1,12 +1,12 @@
 import express from 'express';
-import { createTestUser, getTestUser } from '../controllers/userController.js';
+import { authController } from '../controllers/userController.js';
 
 const router = express.Router();
 
-// Route to create a test user if not exists
-router.post('/', createTestUser);
+router.post('/google', authController.googleAuth);
 
-// Route to retrieve the existing test user
-router.get('/', getTestUser);
+router.post('/register', authController.register);
+
+router.post('/login', authController.login);
 
 export default router;
