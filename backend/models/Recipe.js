@@ -101,15 +101,22 @@ const RecipeSchema = new mongoose.Schema({
     ref: 'FAQ'
   }],
 
-  savedBy: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
-
   likes: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
+
+  featured: {
+    type: Boolean
+  },
+
+  latest: {
+    type: Boolean
+  },
+
+  popular: {
+    type: Boolean
+  },
 
   // User who created the recipe
   author: {

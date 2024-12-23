@@ -6,8 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Mail } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from "@/hooks/use-toast"
-
-const { toast } = useToast()
+import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 
 const AuthModal = () => {
   const { login, register, googleLogin, isLoading } = useAuth();
@@ -18,6 +17,8 @@ const AuthModal = () => {
     email: '',
     password: ''
   });
+
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +46,7 @@ const AuthModal = () => {
   const handleGoogleSignIn = async () => {
     try {
       const auth = await google.accounts.oauth2.initTokenClient({
-        client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID!,
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
         scope: 'email profile',
         callback: async (response:any) => {
           try {
@@ -71,56 +72,79 @@ const AuthModal = () => {
     }
   };
 
+  const setIsLoginTrue = () => {
+    setIsLogin(true);
+  }
+
+  const setIsLoginFalse = () => {
+    setIsLogin(false);
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <div className="flex gap-2">
-          <Button variant="outline">Login</Button>
-          <Button>Register</Button>
+          <Button variant="outline" className='text-black' onClick={setIsLoginTrue}>Login</Button>
+          <Button onClick={setIsLoginFalse} className='bg-orange-500 hover:bg-orange-600'>Register</Button>
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <DialogContent
+        className="sm:max-w-md"
+        onClick={(e) => e.stopPropagation()} // Prevent event bubbling
+      >
+        <DialogTitle className='text-black'>{isLogin ? 'Login' : 'Register'}</DialogTitle>
+        <DialogDescription>
+          {isLogin
+            ? 'Please enter your email and password to log in.'
+            : 'Fill in the details below to create a new account.'}
+        </DialogDescription>
+        <form onSubmit={handleSubmit} className="space-y-4" autoComplete={isLogin ? "on" : "off"} >
           {!isLogin && (
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username" className='text-black'>Username</Label>
               <Input
                 id="username"
+                className='text-black'
                 value={formData.username}
                 onChange={(e) => setFormData(prev => ({
                   ...prev,
                   username: e.target.value
                 }))}
                 disabled={isLoading}
+                autoComplete="username"
               />
             </div>
           )}
           
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className='text-black'>Email</Label>
             <Input
               id="email"
               type="email"
+              className='text-black'
               value={formData.email}
               onChange={(e) => setFormData(prev => ({
                 ...prev,
                 email: e.target.value
               }))}
               disabled={isLoading}
+              autoComplete="email"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className='text-black'>Password</Label>
             <Input
               id="password"
               type="password"
+              className='text-black'
               value={formData.password}
               onChange={(e) => setFormData(prev => ({
                 ...prev,
                 password: e.target.value
               }))}
               disabled={isLoading}
+              autoComplete={isLogin ? "current-password" : "new-password"}
             />
           </div>
 
@@ -144,11 +168,11 @@ const AuthModal = () => {
           <Button 
             type="button"
             variant="outline" 
-            className="w-full"
+            className="w-full text-black"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
           >
-            <Mail className="mr-2 h-4 w-4" />
+            <Mail className="mr-2 h-4 w-4 text-black" />
             Continue with Google
           </Button>
 

@@ -8,6 +8,7 @@ import {
   deleteRecipe, 
   searchRecipes 
 } from '../controllers/recipeController.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -19,9 +20,6 @@ const upload = multer({
     }
 });
 
-// Middleware placeholder for future authentication
-// const authMiddleware = require('../middleware/authMiddleware');
-
 // Route to get all recipes
 router.get('/', getAllRecipes);
 
@@ -29,15 +27,15 @@ router.get('/', getAllRecipes);
 router.get('/:id', getSingleRecipe);
 
 // Route to create a new recipe
-router.post('/', upload.array('images', 5), createRecipe);
+router.post('/', authenticateToken, upload.array('images', 5), createRecipe);
 
 // Route to search recipes
 router.get('/search', searchRecipes);
 
 // Route to update a recipe
-router.put('/:id', updateRecipe);
+router.put('/:id', authenticateToken, updateRecipe);
 
 // Route to delete a recipe
-router.delete('/:id', deleteRecipe);
+router.delete('/:id', authenticateToken, deleteRecipe);
 
 export default router;

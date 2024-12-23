@@ -1,6 +1,5 @@
 import { uploadImagesToS3 } from './services/s3services.js';
 import Recipe from '../models/Recipe.js';
-import User from '../models/User.js';
 
 export const createRecipe = async (req, res) => {
     try {
@@ -13,12 +12,6 @@ export const createRecipe = async (req, res) => {
         const ingredients = JSON.parse(req.body.ingredients);
         const directions = JSON.parse(req.body.directions);
 
-        const testUser = await User.findOne({ isTestUser: true });
-
-        if (!testUser) {
-            return res.status(400).json({ message: 'No test user found. Create a test user first.' });
-        }
-
         const newRecipe = new Recipe({
             title: req.body.title,
             description: req.body.description,
@@ -28,7 +21,7 @@ export const createRecipe = async (req, res) => {
             cookingTime: JSON.parse(req.body.cookingTime),
             nutrition: JSON.parse(req.body.nutrition),
             category: req.body.category,
-            author: testUser._id
+            author: req.user.userId
         });
 
         await newRecipe.save();

@@ -1,54 +1,10 @@
+import { Recipe, RecipeDetailState } from '@/components/types/auth';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Define the Recipe type based on your Mongoose schema
-export interface Ingredient {
-  name: string;
-  quantity: string;
-  unit: 'cup' | 'tablespoon' | 'teaspoon' | 'gram' | 'kg' | 'ml' | 'piece' | 'slice';
-}
-
-export interface RecipeDirection {
-  step: number;
-  instruction: string;
-}
-
-export interface RecipeImage {
-  url: string;
-}
-
-export interface Recipe {
-  _id: string;
-  title: string;
-  description?: string;
-  ingredients: Ingredient[];
-  directions: RecipeDirection[];
-  images: RecipeImage[];
-  cookingTime?: {
-    prep?: number;
-    cook?: number;
-  };
-  nutrition?: {
-    servings?: number;
-    calories?: number;
-    protein?: number;
-    carbohydrates?: number;
-    fat?: number;
-  };
-  category?: 'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack' | 'Appetizer' | 'Beverage';
-  author: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// Define the state type
-export interface RecipeDetailState {
-  recipe: Recipe | null;
-  loading: boolean;
-  error: string | null;
-}
 
 // Initial state
 const initialState: RecipeDetailState = {

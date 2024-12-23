@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-dotenv.config();
 import express, { json } from 'express';
 import { connect } from 'mongoose';
 import cors from 'cors';
@@ -10,6 +9,7 @@ import userRoutes from './routes/userRoutes.js';
 
 // Create Express application
 const app = express();
+dotenv.config();
 
 // Middleware
 app.use(cors()); // Enable CORS
@@ -24,7 +24,7 @@ connect(process.env.MONGODB_URI, {
 
 // Routes
 app.use('/api/recipes', recipeRoutes);
-app.use('/api/testUser', userRoutes);
+app.use('/api/auth', userRoutes);
 
 // Global error handler (basic)
 app.use((err, req, res, next) => {

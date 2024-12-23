@@ -2,21 +2,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
+import { Direction, Ingredient } from '@/components/types/auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const MAX_FILE_SIZE = parseInt(import.meta.env.VITE_MAX_FILE_SIZE, 10);
 const MAX_FILES = parseInt(import.meta.env.VITE_MAX_FILES, 10)
 
-interface Ingredient {
-  name: string;
-  quantity: string;
-  unit: string;
-}
-
-interface Direction {
-  step: number;
-  instruction: string;
-}
 
 const AddRecipe: React.FC = () => {
   const navigate = useNavigate();
@@ -99,9 +90,13 @@ const AddRecipe: React.FC = () => {
         formData.append('images', image);
       });
 
-      const response: any = await axios.post(`${API_BASE_URL}/api/recipes`, formData, {
+      // Get the token from localStorage
+      const token = localStorage.getItem('token');
+
+      const response: any = await axios.post(`${API_BASE_URL}/recipes`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
         }
       });
 
