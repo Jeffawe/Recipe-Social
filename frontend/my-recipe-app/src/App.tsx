@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AddRecipe, Explore, RecipeDetail, NavBar, Home } from './components';
 import { AuthProvider } from './components/context/AuthContext';
 import ProtectedRoute from './components/context/ProtectedRoute';
+import Footer from './components/Footer/Footer';
 
 const App: React.FC = () => {
   return (
@@ -23,6 +24,7 @@ const App: React.FC = () => {
             />
             <Route path="/recipe/:id" element={<RecipeDetail />} />
           </Routes>
+          <Footer />
         </div>
       </Router>
     </AuthProvider>

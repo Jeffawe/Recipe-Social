@@ -60,30 +60,27 @@ export interface RecipeImage {
   url: string;
 }
 
-export interface Recipe {
+export type Recipe = {
   _id: string;
   title: string;
-  description?: string;
+  description: string;
   ingredients: Ingredient[];
-  directions: RecipeDirection[];
-  images: RecipeImage[];
-  cookingTime: {
-    prep: number;
-    cook: number;
+  directions: Direction[];
+  images: Image[];
+  cookingTime: CookingTime;
+  nutrition: Nutrition;
+  category: 'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack' | 'Appetizer' | 'Beverage';
+  author: {
+    _id: string;
+    username: string;
   };
-  nutrition?: {
-    servings?: number;
-    calories?: number;
-    protein?: number;
-    carbohydrates?: number;
-    fat?: number;
-  };
-  category?: 'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack' | 'Appetizer' | 'Beverage';
-  author: string;
-  likes: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+  comments: string[];
+  faqs: string[];
+  savedBy: string[];
+  likes: string[];
+  createdAt: string;
+  updatedAt: string;
+};
 
 export type RecipesResponse = {
   recipes: Recipe[];

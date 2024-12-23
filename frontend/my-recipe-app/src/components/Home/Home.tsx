@@ -15,19 +15,19 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="min-h-screen flex flex-col relative  bg-gradient-to-br from-orange-50 to-white">
       <div className="w-full px-0 flex-grow">
         <LandingPage />
-        <SearchBar />
         {isAuthenticated &&
-          <Explore />
+          <SearchBar /> &&
+          <Explore isMinimal={true} />
         }
       </div>
 
       {isAuthenticated &&
         <button
           onClick={handleAddRecipe}
-          className="fixed bottom-6 right-6 bg-blue-500 text-white 
+          className="fixed bottom-6 right-6 bg-orange-500 text-white 
         rounded-full w-16 h-16 flex items-center justify-center 
         shadow-lg hover:bg-blue-600 transition-colors z-50"
         >

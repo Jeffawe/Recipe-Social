@@ -1,21 +1,22 @@
 import React from 'react';
 import { useAuth } from './context/AuthContext';
 import AuthModal from './features/AuthModal/AuthModal';
-import { 
-  DropdownMenu, 
-  DropdownMenuTrigger, 
-  DropdownMenuContent, 
-  DropdownMenuItem 
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem
 } from '@/components/ui/dropdown-menu';
-import { 
-  ChefHat, 
-  User, 
-  BookOpen, 
-  Settings, 
-  LogOut 
+import {
+  ChefHat,
+  User,
+  BookOpen,
+  Settings,
+  LogOut
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-const NavBar : React.FC = () => {
+const NavBar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
 
   const handleLogout = async () => {
@@ -30,19 +31,19 @@ const NavBar : React.FC = () => {
     <nav className="sticky top-0 z-50 bg-white shadow-md">
       <div className="container mx-auto flex items-center justify-between px-4 py-3">
         {/* Logo Section - Always visible */}
-        <div className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-2">
           <ChefHat className="text-orange-500" size={32} />
           <span className="text-xl font-bold text-gray-800">RecipeSocial</span>
-        </div>
+        </Link>
 
         {/* Authentication Section */}
         {isAuthenticated ? (
           // User is logged in - Show profile dropdown
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none">
-              <img 
-                src={user?.profilePicture || '/api/placeholder/40/40'} 
-                alt="User Profile" 
+              <img
+                src={user?.profilePicture || '/api/placeholder/40/40'}
+                alt="User Profile"
                 className="w-10 h-10 rounded-full border-2 border-orange-500 hover:ring-2 hover:ring-orange-300 transition-all"
               />
             </DropdownMenuTrigger>
@@ -59,7 +60,7 @@ const NavBar : React.FC = () => {
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="cursor-pointer hover:bg-gray-50 text-red-500"
                 onClick={handleLogout}
               >
