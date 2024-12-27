@@ -32,7 +32,7 @@ export interface Ingredient {
   unit: string;
 }
 
-export type Image = {
+export interface Image {
   fileName: string;
   url: string;
   size?: number;
@@ -56,8 +56,15 @@ export interface RecipeDirection {
   instruction: string;
 }
 
-export interface RecipeImage {
-  url: string;
+export interface RecipeFormData {
+  title: string;
+  description: string;
+  ingredients: Ingredient[];
+  directions: Direction[];
+  images: File[];
+  cookingTime: CookingTime
+  nutrition: Nutrition
+  category: string;
 }
 
 export type Recipe = {
@@ -81,6 +88,17 @@ export type Recipe = {
   createdAt: string;
   updatedAt: string;
 };
+
+export interface RecipeData {
+  title?: string;
+  description?: string;
+  ingredients?: Ingredient[];
+  directions?: Direction[];
+  images?: Image[];
+  cookingTime?: CookingTime;
+  nutrition?: Nutrition;
+  category?: string;
+}
 
 export type RecipesResponse = {
   recipes: Recipe[];

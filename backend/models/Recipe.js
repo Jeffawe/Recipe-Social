@@ -8,7 +8,7 @@ const RecipeSchema = new mongoose.Schema({
     required: true,      // Makes this field mandatory
     trim: true           // Removes whitespace from start and end
   },
-  
+
   description: {
     type: String,
     trim: true,
@@ -82,12 +82,12 @@ const RecipeSchema = new mongoose.Schema({
   category: {
     type: String,
     enum: [
-      'Breakfast', 
-      'Lunch', 
-      'Dinner', 
-      'Dessert', 
-      'Snack', 
-      'Appetizer', 
+      'Breakfast',
+      'Lunch',
+      'Dinner',
+      'Dessert',
+      'Snack',
+      'Appetizer',
       'Beverage'
     ]
   },
@@ -95,7 +95,7 @@ const RecipeSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Comment'
   }],
-  
+
   faqs: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'FAQ'
@@ -118,6 +118,14 @@ const RecipeSchema = new mongoose.Schema({
     type: Boolean
   },
 
+  templateID: {
+    type: String
+  },
+
+  templateString: {
+    type: String
+  },
+
   // User who created the recipe
   author: {
     type: mongoose.Schema.Types.ObjectId,  // Reference to User model
@@ -130,6 +138,7 @@ const RecipeSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+
   updatedAt: {
     type: Date,
     default: Date.now
@@ -140,11 +149,10 @@ const RecipeSchema = new mongoose.Schema({
 });
 
 // Create a text index for search functionality
-RecipeSchema.index({ 
-  title: 'text', 
-  description: 'text', 
-  'ingredients.name': 'text' 
+RecipeSchema.index({
+  title: 'text',
+  description: 'text',
+  'ingredients.name': 'text'
 });
 
-// Export the model
 export default mongoose.model('Recipe', RecipeSchema);

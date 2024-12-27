@@ -1,31 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
-import { Direction, Ingredient } from '@/components/types/auth';
+import { Direction, Ingredient, RecipeFormData } from '@/components/types/auth';
 
 const MAX_FILE_SIZE = parseInt(import.meta.env.VITE_MAX_FILE_SIZE, 10);
 const MAX_FILES = parseInt(import.meta.env.VITE_MAX_FILES, 10);
 
-// Types
-export interface RecipeFormData {
-    title: string;
-    description: string;
-    ingredients: Ingredient[];
-    directions: Direction[];
-    images: File[];
-    cookingTime: {
-        prep: number;
-        cook: number;
-    };
-    nutrition: {
-        servings: number;
-        calories: number;
-        protein: number;
-        carbohydrates: number;
-        fat: number;
-    };
-    category: string;
-}
 
 // First Page Component
 const RecipeDetailsPage: React.FC<{
@@ -301,7 +281,7 @@ const RecipeDetailsPage: React.FC<{
 
                 <button
                     type="submit"
-                    className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+                    className="bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors"
                 >
                     Next
                 </button>

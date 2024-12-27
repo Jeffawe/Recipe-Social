@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import LandingPage from './LandingPage'
 import SearchBar from './SearchBar';
-import Explore from '../features/Explore/Explore';
+import Explore from '../pages/Explore/Explore';
 import { PlusIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 

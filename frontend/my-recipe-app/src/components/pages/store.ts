@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import recipeDetailReducer from './RecipeDetail/recipeDetailSlice'; // Your slice reducer
+import recipeDetailReducer from './RecipeShowcasePage/recipeDetailSlice'; // Your slice reducer
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 // Create the Redux store

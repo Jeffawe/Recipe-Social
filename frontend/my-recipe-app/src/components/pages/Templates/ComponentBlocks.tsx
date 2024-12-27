@@ -1,44 +1,4 @@
-// TypeScript Interfaces
-interface Ingredient {
-    name: string;
-    quantity: string;
-    unit: string;
-}
-
-interface Direction {
-    step: number;
-    instruction: string;
-}
-
-interface RecipeImage {
-    fileName: string;
-    url: string;
-    size?: number;
-}
-
-interface CookingTime {
-    prep: number;
-    cook: number;
-}
-
-interface Nutrition {
-    servings: number;
-    calories: number;
-    protein: number;
-    carbohydrates: number;
-    fat: number;
-}
-
-interface RecipeData {
-    title?: string;
-    description?: string;
-    ingredients?: Ingredient[];
-    directions?: Direction[];
-    images?: RecipeImage[];
-    cookingTime?: CookingTime;
-    nutrition?: Nutrition;
-    category?: string;
-}
+import { RecipeData } from "@/components/types/auth";
 
 interface BlockConfig {
     imageIndex?: number;
@@ -67,7 +27,6 @@ interface BlockComponentProps {
     config?: BlockConfig;
 }
 
-// Component Props Types
 const RecipeTitle: React.FC<BlockComponentProps> = ({ data }) => (
     <h1 className="text-3xl text-black font-bold mb-4">{data?.title || 'Recipe Title'}</h1>
 );

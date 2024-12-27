@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from './context/AuthContext';
-import AuthModal from './features/AuthModal/AuthModal';
+import AuthModal from './pages/AuthModal/AuthModal';
 import {
   DropdownMenu,
   DropdownMenuTrigger,

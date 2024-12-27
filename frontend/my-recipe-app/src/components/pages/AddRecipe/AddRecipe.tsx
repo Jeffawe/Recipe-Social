@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import RecipeDetailsPage, { RecipeFormData } from './FirstPage';
+import RecipeDetailsPage from './FirstPage';
 import TemplateSelectionPage from './SecondPage';
+import { RecipeFormData } from '@/components/types/auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 

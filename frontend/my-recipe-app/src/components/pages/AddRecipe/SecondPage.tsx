@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Plus } from 'lucide-react';
-import { RecipeFormData } from './FirstPage';
+import { useRecipe } from '@/components/context/RecipeDataContext';
+import { RecipeData, RecipeFormData, Image } from '@/components/types/auth';
 
 interface Template {
     _id: string;
@@ -23,6 +24,7 @@ const TemplateSelectionPage: React.FC<{
     const [templates, setTemplates] = useState<Template[]>([]);
     const [selectedTemplate, setSelectedTemplate] = useState<string>('');
     const [isLoading, setIsLoading] = useState(true);
+    const { setRecipeData, setIsEditing } = useRecipe();
 
     React.useEffect(() => {
         fetchTemplates()
@@ -53,6 +55,26 @@ const TemplateSelectionPage: React.FC<{
         onSubmit(selectedTemplate);
     };
 
+    const convertToRecipeData = (formData: RecipeFormData): RecipeData => {
+        const images: Image[] = formData.images.map(file => ({
+          fileName: file.name,
+          url: URL.createObjectURL(file),
+          size: file.size
+        }));
+       
+        return {
+          ...formData,
+          images
+        };
+       };
+
+    const handleCreateTemplate = () => {
+        setIsEditing(true)
+        const convertedRecipeData = convertToRecipeData(recipeData)
+        setRecipeData(convertedRecipeData)
+        navigate('/templates')
+    }
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -77,7 +99,7 @@ const TemplateSelectionPage: React.FC<{
 
             <div className="mb-6">
                 <button
-                    onClick={() => navigate('/templates')}
+                    onClick={handleCreateTemplate}
                     className="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors"
                 >
                     <Plus size={20} />

@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchRecipeDetails, Ingredient, RecipeDirection, clearRecipeDetail } from './recipeDetailSlice'
+import { fetchRecipeDetails, clearRecipeDetail } from './recipeDetailSlice'
 import { RootState,  useAppDispatch, useAppSelector } from '../store';
+import { Ingredient, RecipeDirection } from '@/components/types/auth';
 
 // interface RootState {
 //   recipeDetail: RecipeDetailState;
