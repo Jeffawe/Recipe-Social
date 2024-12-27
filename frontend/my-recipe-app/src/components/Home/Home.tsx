@@ -18,8 +18,8 @@ const Home: React.FC = () => {
     <div className="min-h-screen flex flex-col relative  bg-gradient-to-br from-orange-50 to-white">
       <div className="w-full px-0 flex-grow">
         <LandingPage />
+        {isAuthenticated && <SearchBar />}
         {isAuthenticated &&
-          <SearchBar /> &&
           <Explore isMinimal={true} />
         }
       </div>
@@ -29,7 +29,7 @@ const Home: React.FC = () => {
           onClick={handleAddRecipe}
           className="fixed bottom-6 right-6 bg-orange-500 text-white 
         rounded-full w-16 h-16 flex items-center justify-center 
-        shadow-lg hover:bg-blue-600 transition-colors z-50"
+        shadow-lg hover:bg-orange-600 transition-colors z-50"
         >
           <PlusIcon size={32} />
         </button>

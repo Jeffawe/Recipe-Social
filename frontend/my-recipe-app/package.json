@@ -2,6 +2,8 @@
   "name": "my-recipe-app",
   "private": true,
   "version": "0.0.0",
+  "copyright": "Copyright (c) 2024 Jeffery Ozoekwe Awagu",
+  "license": "All Rights Reserved",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +13,7 @@
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
+    "@hello-pangea/dnd": "^17.0.0",
     "@heroicons/vue": "^2.2.0",
     "@radix-ui/react-dialog": "^1.1.4",
     "@radix-ui/react-dropdown-menu": "^2.1.2",
@@ -20,6 +23,8 @@
     "@radix-ui/react-tabs": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.4",
     "@reduxjs/toolkit": "^2.5.0",
+    "@tiptap/react": "^2.10.4",
+    "@tiptap/starter-kit": "^2.10.4",
     "@types/axios": "^0.9.36",
     "@types/google.accounts": "^0.0.15",
     "@types/react-redux": "^7.1.34",

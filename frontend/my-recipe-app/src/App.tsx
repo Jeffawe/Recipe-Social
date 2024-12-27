@@ -4,6 +4,7 @@ import { AddRecipe, Explore, RecipeDetail, NavBar, Home } from './components';
 import { AuthProvider } from './components/context/AuthContext';
 import ProtectedRoute from './components/context/ProtectedRoute';
 import Footer from './components/Footer/Footer';
+import TemplateEditor from './components/features/Templates/TemplateEditor';
 
 const App: React.FC = () => {
   return (
@@ -22,6 +23,16 @@ const App: React.FC = () => {
                 </ProtectedRoute>
               }
             />
+            <Route path="/select-template"
+              element={
+                <ProtectedRoute>
+                  <AddRecipe />
+                </ProtectedRoute>
+              } />
+            <Route path="/templates"
+              element={
+                  <TemplateEditor />
+              } />
             <Route path="/recipe/:id" element={<RecipeDetail />} />
           </Routes>
           <Footer />
