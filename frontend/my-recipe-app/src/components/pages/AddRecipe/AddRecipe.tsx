@@ -3,12 +3,10 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import RecipeDetailsPage from './FirstPage';
 import TemplateSelectionPage from './SecondPage';
-import { RecipeFormData } from '@/components/types/auth';
+import { convertToRecipeData, RecipeFormData } from '@/components/types/auth';
+import { useRecipe } from '@/components/context/RecipeDataContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-
-// const AddRecipe: React.FC = () => {
 //   const navigate = useNavigate();
 //   const [title, setTitle] = useState('');
 //   const [description, setDescription] = useState('');
@@ -350,12 +348,15 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const AddRecipe: React.FC = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const [recipeData, setRecipeData] = useState<RecipeFormData | null>(null);
+  const [step, setStep] = useState(() => {
+    return Number(localStorage.getItem('recipeStep')) || 1;
+  });
+  const [recipeData, setrecipeData] = useState<RecipeFormData | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const { setRecipeData } = useRecipe();
 
   const handleFirstStepComplete = (data: RecipeFormData) => {
-    setRecipeData(data);
+    setrecipeData(data);
     setStep(2);
   };
 
@@ -363,8 +364,11 @@ const AddRecipe: React.FC = () => {
     setStep(1);
   };
 
-  const handleFinalSubmit = async (templateId: string) => {
+  const handleFinalSubmit = async (templateId: string, templateString : string) => {
     if (!recipeData) return;
+    const finalData = convertToRecipeData(recipeData)
+    finalData.templateString = templateString
+    setRecipeData(finalData)
 
     setIsUploading(true);
     try {
@@ -385,6 +389,7 @@ const AddRecipe: React.FC = () => {
       });
 
       formData.append('templateId', templateId);
+      formData.append('templateString', templateString)
 
       const response:any = await axios.post(`${API_BASE_URL}/recipes`, formData, {
         headers: {
@@ -393,6 +398,7 @@ const AddRecipe: React.FC = () => {
         }
       });
 
+      localStorage.setItem('recipeStep', '1');
       navigate(`/recipe/${response.data._id}`);
     } catch (error) {
       console.error('Error creating recipe:', error);

@@ -3,9 +3,9 @@ import express, { json } from 'express';
 import { connect } from 'mongoose';
 import cors from 'cors';
 
-// Import routes
 import recipeRoutes from './routes/recipeRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import templateRoutes from './routes/templateRoutes';
 
 // Create Express application
 const app = express();
@@ -25,6 +25,7 @@ connect(process.env.MONGODB_URI, {
 // Routes
 app.use('/api/recipes', recipeRoutes);
 app.use('/api/auth', userRoutes);
+app.use('/api/templates', templateRoutes);
 
 // Global error handler (basic)
 app.use((err, req, res, next) => {

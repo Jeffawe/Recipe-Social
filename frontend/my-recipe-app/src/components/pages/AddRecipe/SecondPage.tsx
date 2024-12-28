@@ -3,26 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Plus } from 'lucide-react';
 import { useRecipe } from '@/components/context/RecipeDataContext';
-import { RecipeData, RecipeFormData, Image } from '@/components/types/auth';
-
-interface Template {
-    _id: string;
-    name: string;
-    description: string;
-    preview: string;
-    layout: any;
-}
+import { RecipeFormData, Template, convertToRecipeData } from '@/components/types/auth';
+import BLOCK_COMPONENTS, { BLOCK_TYPES } from '../Templates/ComponentBlocks';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+interface ConvertToPreviewProps {
+    blocksString: string;
+    data: RecipeFormData;
+    className?: string;
+}
+
 const TemplateSelectionPage: React.FC<{
     onBack: () => void;
-    onSubmit: (templateId: string) => void;
+    onSubmit: (templateId: string, templateString: string) => void;
     recipeData: RecipeFormData;
 }> = ({ onBack, onSubmit, recipeData }) => {
     const navigate = useNavigate();
     const [templates, setTemplates] = useState<Template[]>([]);
-    const [selectedTemplate, setSelectedTemplate] = useState<string>('');
+    const [selectedTemplate, setSelectedTemplate] = useState<Template>();
     const [isLoading, setIsLoading] = useState(true);
     const { setRecipeData, setIsEditing } = useRecipe();
 
@@ -33,12 +32,26 @@ const TemplateSelectionPage: React.FC<{
     const fetchTemplates = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response: any = await axios.get(`${API_BASE_URL}/templates`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            setTemplates(response.data);
+
+            type TemplateResponse = Template[];
+
+            // Fetch both public and user templates concurrently
+            const [publicResponse, userResponse] = await Promise.all([
+                axios.get<TemplateResponse>(`${API_BASE_URL}/templates/public`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get<TemplateResponse>(`${API_BASE_URL}/templates/user/templates`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ]);
+
+            // Combine and deduplicate templates (in case user's public templates appear in both)
+            const allTemplates = [...publicResponse.data, ...userResponse.data];
+            const uniqueTemplates = Array.from(new Map(
+                allTemplates.map(template => [template._id, template])
+            ).values());
+
+            setTemplates(uniqueTemplates);
         } catch (error) {
             console.error('Error fetching templates:', error);
             alert('Failed to load templates. Please try again.');
@@ -52,28 +65,51 @@ const TemplateSelectionPage: React.FC<{
             alert('Please select a template');
             return;
         }
-        onSubmit(selectedTemplate);
-    };
 
-    const convertToRecipeData = (formData: RecipeFormData): RecipeData => {
-        const images: Image[] = formData.images.map(file => ({
-          fileName: file.name,
-          url: URL.createObjectURL(file),
-          size: file.size
-        }));
-       
-        return {
-          ...formData,
-          images
-        };
-       };
+        //Stores the string in local storage for easy usage
+        localStorage.setItem('currentTemplateId', selectedTemplate.template);
+        localStorage.setItem('templateUsed', JSON.stringify(true));
+        onSubmit(selectedTemplate._id, selectedTemplate.template);
+    };
 
     const handleCreateTemplate = () => {
         setIsEditing(true)
         const convertedRecipeData = convertToRecipeData(recipeData)
         setRecipeData(convertedRecipeData)
-        navigate('/templates')
+        localStorage.setItem('recipeStep', '2');
+        navigate('/templates', {
+            state: {
+                onSubmit,
+            },
+        });
     }
+
+    const convertToPreview = ({ blocksString, data, className = '' }: ConvertToPreviewProps) => {
+        const blockTypes = blocksString.split(',') as BLOCK_TYPES[]; // Convert the string back to an array of block types
+        const convertedData = convertToRecipeData(data)
+        return (
+            <div className={`flex flex-col gap-4${className}`}>
+                {blockTypes.map((blockType, index) => {
+                    const BlockComponent = BLOCK_COMPONENTS[blockType]; // Get the component based on type
+
+                    if (!BlockComponent) {
+                        return (
+                            <div key={index} className="text-gray-500 italic">
+                                Unknown Block
+                            </div>
+                        );
+                    }
+
+                    // Render each block with a simplified preview
+                    return (
+                        <div key={index} className="block-preview p-3 border border-gray-300 rounded-lg shadow-sm bg-white">
+                            <BlockComponent data={convertedData} config={{}} />
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
 
     if (isLoading) {
         return (
@@ -111,22 +147,22 @@ const TemplateSelectionPage: React.FC<{
                 {templates.map((template) => (
                     <div
                         key={template._id}
-                        onClick={() => setSelectedTemplate(template._id)}
+                        onClick={() => setSelectedTemplate(template)}
                         className={`
                   border rounded-lg p-4 cursor-pointer transition-all
-                  ${selectedTemplate === template._id
+                  ${selectedTemplate?._id === template._id
                                 ? 'border-green-500 shadow-lg transform scale-105'
                                 : 'border-gray-200 hover:border-green-300'
                             }
                 `}
                     >
-                        <img
-                            src={template.preview}
-                            alt={template.name}
-                            className="w-full h-48 object-cover rounded mb-4"
-                        />
-                        <h3 className="font-semibold text-lg mb-2">{template.name}</h3>
-                        <p className="text-gray-600 text-sm">{template.description}</p>
+                        {/* Call convertToPreview to display a preview of the template */}
+                        {convertToPreview({
+                            blocksString: template.template, // template.template contains the block types string
+                            data: recipeData,                 // recipeData is the data to fill the blocks
+                            className: 'max-w-md mx-auto', 
+                        })}
+                        <h3 className="font-semibold text-lg mb-2">{'template' + template._id}</h3>
                     </div>
                 ))}
             </div>
@@ -138,7 +174,7 @@ const TemplateSelectionPage: React.FC<{
                     className={`
                 px-6 py-3 rounded-lg transition-colors
                 ${selectedTemplate
-                            ? 'bg-green-500 text-white hover:bg-green-600'
+                            ? 'bg-orange-500 text-white hover:bg-orange-600'
                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         }
               `}

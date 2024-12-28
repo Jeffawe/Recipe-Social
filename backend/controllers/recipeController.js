@@ -21,7 +21,12 @@ export const createRecipe = async (req, res) => {
             cookingTime: JSON.parse(req.body.cookingTime),
             nutrition: JSON.parse(req.body.nutrition),
             category: req.body.category,
-            author: req.user.userId
+            author: req.user.userId,
+            featured: false,
+            latest: false,
+            popular: false,
+            templateID: req.body.templateID || null,
+            templateString: req.body.templateString || ''
         });
 
         await newRecipe.save();

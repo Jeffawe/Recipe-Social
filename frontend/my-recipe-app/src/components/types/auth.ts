@@ -65,6 +65,14 @@ export interface RecipeFormData {
   cookingTime: CookingTime
   nutrition: Nutrition
   category: string;
+  templateString: string;
+}
+
+export interface Template {
+  _id: string;
+  template: string;
+  author: string;  // MongoDB ObjectId as string
+  public: boolean;
 }
 
 export type Recipe = {
@@ -98,6 +106,7 @@ export interface RecipeData {
   cookingTime?: CookingTime;
   nutrition?: Nutrition;
   category?: string;
+  templateString?: string;
 }
 
 export type RecipesResponse = {
@@ -120,3 +129,17 @@ export interface RecipeDetailState {
   loading: boolean;
   error: string | null;
 }
+
+
+export const convertToRecipeData = (formData: RecipeFormData): RecipeData => {
+  const images: Image[] = formData.images.map(file => ({
+      fileName: file.name,
+      url: URL.createObjectURL(file),
+      size: file.size
+  }));
+
+  return {
+      ...formData,
+      images
+  };
+};

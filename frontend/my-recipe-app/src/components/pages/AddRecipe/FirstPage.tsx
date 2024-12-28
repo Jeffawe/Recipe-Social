@@ -58,6 +58,8 @@ const RecipeDetailsPage: React.FC<{
             return;
         }
 
+        const templateString = ''
+
         onNext({
             title,
             description,
@@ -66,7 +68,8 @@ const RecipeDetailsPage: React.FC<{
             images,
             cookingTime,
             nutrition,
-            category
+            category,
+            templateString
         });
     };
 
