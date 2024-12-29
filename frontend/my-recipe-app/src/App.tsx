@@ -6,6 +6,12 @@ import ProtectedRoute from './components/context/ProtectedRoute';
 import Footer from './components/Footer/Footer';
 import TemplateEditor from './components/pages/Templates/TemplateEditor';
 import { RecipeProvider } from './components/context/RecipeDataContext';
+import SettingsLayout from './components/account/Settings';
+import AccountSettings from './components/account/Settings Options/AccountSettings';
+import ProfileSettings from './components/account/Settings Options/Profile';
+import AppearanceSettings from './components/account/Settings Options/Appearance';
+import HelpSupport from './components/account/Settings Options/HelpAndOptions';
+import CookingPreferences from './components/account/Settings Options/CookingPreferences';
 
 const App: React.FC = () => {
   return (
@@ -25,17 +31,15 @@ const App: React.FC = () => {
                   </ProtectedRoute>
                 }
               />
-              <Route path="/select-template"
-                element={
-                  <ProtectedRoute>
-                    <AddRecipe />
-                  </ProtectedRoute>
-                } />
-              <Route path="/templates"
-                element={
-                  <TemplateEditor />
-                } />
+              <Route path="/templates" element={<TemplateEditor />} />
               <Route path="/recipe/:id" element={<RecipePage />} />
+              <Route path="/settings" element={<ProtectedRoute> <SettingsLayout /> </ProtectedRoute>}>
+                <Route path="account" element={<ProtectedRoute> <AccountSettings /> </ProtectedRoute>} />
+                <Route path="profile" element={<ProtectedRoute> <ProfileSettings /> </ProtectedRoute>} />
+                <Route path="appearance" element={<ProtectedRoute> <AppearanceSettings /> </ProtectedRoute>} />
+                <Route path="help" element={<ProtectedRoute> <HelpSupport /> </ProtectedRoute>} />
+                <Route path="cooking" element={<ProtectedRoute> <CookingPreferences /> </ProtectedRoute>} />
+              </Route>
             </Routes>
             <Footer />
           </div>

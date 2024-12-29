@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticateToken } from '../middleware/auth'; 
+import { authenticateToken } from '../middleware/auth.js'; 
 import {
     createTemplate,
     getAllTemplates,
@@ -8,7 +8,7 @@ import {
     updateTemplate,
     deleteTemplate,
     saveTemplate
-} from '../controllers/templateController';
+} from '../controllers/templateController.js';
 
 const router = express.Router();
 

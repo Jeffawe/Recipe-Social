@@ -14,10 +14,11 @@ import {
   Settings,
   LogOut
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const NavBar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
@@ -26,6 +27,14 @@ const NavBar: React.FC = () => {
       console.error('Logout failed:', error);
     }
   };
+
+  const handleSettings = () => {
+    navigate('/settings')
+  }
+
+  const handleProfile = () => {
+    navigate('/settings/profile')
+  }
 
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-md">
@@ -48,7 +57,7 @@ const NavBar: React.FC = () => {
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 bg-white shadow-lg rounded-md border">
-              <DropdownMenuItem className="cursor-pointer hover:bg-gray-50">
+              <DropdownMenuItem className="cursor-pointer hover:bg-gray-50" onClick={handleProfile}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
@@ -56,7 +65,7 @@ const NavBar: React.FC = () => {
                 <BookOpen className="mr-2 h-4 w-4" />
                 <span>My Recipes</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer hover:bg-gray-50">
+              <DropdownMenuItem className="cursor-pointer hover:bg-gray-50" onClick={handleSettings}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>

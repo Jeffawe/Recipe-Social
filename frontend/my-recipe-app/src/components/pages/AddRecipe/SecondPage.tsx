@@ -77,11 +77,7 @@ const TemplateSelectionPage: React.FC<{
         const convertedRecipeData = convertToRecipeData(recipeData)
         setRecipeData(convertedRecipeData)
         localStorage.setItem('recipeStep', '2');
-        navigate('/templates', {
-            state: {
-                onSubmit,
-            },
-        });
+        navigate('/templates');
     }
 
     const convertToPreview = ({ blocksString, data, className = '' }: ConvertToPreviewProps) => {
@@ -160,7 +156,7 @@ const TemplateSelectionPage: React.FC<{
                         {convertToPreview({
                             blocksString: template.template, // template.template contains the block types string
                             data: recipeData,                 // recipeData is the data to fill the blocks
-                            className: 'max-w-md mx-auto', 
+                            className: 'max-w-md mx-auto',
                         })}
                         <h3 className="font-semibold text-lg mb-2">{'template' + template._id}</h3>
                     </div>

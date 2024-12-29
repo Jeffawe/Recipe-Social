@@ -24,9 +24,7 @@ const TemplateEditor: React.FC = () => {
   ]);
 
   const navigate = useNavigate();
-  const location = useLocation();
   const { isEditing, recipeData, setIsEditing } = useRecipe();
-  const { onSubmit } = location.state || {};
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -96,15 +94,11 @@ const TemplateEditor: React.FC = () => {
 
       const templateId = response.template;
 
-      if (isUseTemplate) {
-        if(onSubmit) onSubmit(templateId);
+      if (isEditing) {
+        setIsEditing(false);
+        navigate('/add-recipe');
       } else {
-        if (isEditing) {
-          setIsEditing(false);
-          navigate('/add-recipe');
-        } else {
-          navigate('/');
-        }
+        navigate('/');
       }
     } catch (error) {
       console.error('Error saving or using template:', error);
@@ -117,12 +111,6 @@ const TemplateEditor: React.FC = () => {
       <div className="container mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl text-black font-bold">Template Editor</h1>
-          <button
-            onClick={() => handleSave(true)}
-            className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
-          >
-            Use Template
-          </button>
           <button
             onClick={() => handleSave(false)}
             className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"

@@ -11,7 +11,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const RecipePage : React.FC = () => {
   const { id } = useParams();
   const { recipeData } = useRecipe();
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuth();
   const [recipe, setRecipe] = useState<RecipeData | null>(null);
   const [template, setTemplate] = useState<BLOCK_TYPES[]>([]);
   const [isLoading, setIsLoading] = useState(true);
