@@ -95,8 +95,6 @@ const TemplateEditor: React.FC = () => {
       const response = await saveTemplate(templateData, true);
 
       const templateId = response.template;
-      localStorage.setItem('currentTemplateId', templateId);
-      localStorage.setItem('templateUsed', JSON.stringify(isUseTemplate));
 
       if (isUseTemplate) {
         if(onSubmit) onSubmit(templateId);

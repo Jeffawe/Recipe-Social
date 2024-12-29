@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Plus } from 'lucide-react';
 import { useRecipe } from '@/components/context/RecipeDataContext';
 import { RecipeFormData, Template, convertToRecipeData } from '@/components/types/auth';
-import BLOCK_COMPONENTS, { BLOCK_TYPES } from '../Templates/ComponentBlocks';
+import BLOCK_COMPONENTS, { BLOCK_TYPES, convertStringToBlockTypes } from '../Templates/ComponentBlocks';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -85,7 +85,7 @@ const TemplateSelectionPage: React.FC<{
     }
 
     const convertToPreview = ({ blocksString, data, className = '' }: ConvertToPreviewProps) => {
-        const blockTypes = blocksString.split(',') as BLOCK_TYPES[]; // Convert the string back to an array of block types
+        const blockTypes = convertStringToBlockTypes(blocksString)// Convert the string back to an array of block types
         const convertedData = convertToRecipeData(data)
         return (
             <div className={`flex flex-col gap-4${className}`}>

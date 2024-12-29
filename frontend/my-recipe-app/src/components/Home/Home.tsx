@@ -11,11 +11,12 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
 
   const handleAddRecipe = () => {
+    localStorage.setItem('recipeStep', '1');
     navigate('/add-recipe');
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative  bg-gradient-to-br from-orange-50 to-white">
+    <div className="min-h-screen flex flex-col relative bg-gradient-to-br from-orange-50 to-white">
       <div className="w-full px-0 flex-grow">
         <LandingPage />
         {isAuthenticated && <SearchBar />}

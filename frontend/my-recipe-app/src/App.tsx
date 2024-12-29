@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { AddRecipe, Explore, RecipeDetail, NavBar, Home } from './components';
+import { AddRecipe, Explore, RecipePage, NavBar, Home } from './components';
 import { AuthProvider } from './components/context/AuthContext';
 import ProtectedRoute from './components/context/ProtectedRoute';
 import Footer from './components/Footer/Footer';
@@ -35,7 +35,7 @@ const App: React.FC = () => {
                 element={
                   <TemplateEditor />
                 } />
-              <Route path="/recipe/:id" element={<RecipeDetail />} />
+              <Route path="/recipe/:id" element={<RecipePage />} />
             </Routes>
             <Footer />
           </div>

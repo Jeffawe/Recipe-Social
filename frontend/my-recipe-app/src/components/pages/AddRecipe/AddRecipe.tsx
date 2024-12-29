@@ -357,11 +357,13 @@ const AddRecipe: React.FC = () => {
 
   const handleFirstStepComplete = (data: RecipeFormData) => {
     setrecipeData(data);
+    localStorage.setItem('recipeStep', '2');
     setStep(2);
   };
 
   const handleBack = () => {
     setStep(1);
+    localStorage.setItem('recipeStep', '1');
   };
 
   const handleFinalSubmit = async (templateId: string, templateString : string) => {

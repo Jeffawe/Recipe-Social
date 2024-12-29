@@ -111,7 +111,6 @@ const RecipeDetailsPage: React.FC<{
         setImages((prevImages) => prevImages.filter((_, index) => index !== indexToRemove));
     };
 
-    // Return the same JSX as your original form, but with handleSubmit modified
     return (
         <div className="mx-auto p-6 relative bg-gradient-to-br from-orange-50 to-white">
             <button

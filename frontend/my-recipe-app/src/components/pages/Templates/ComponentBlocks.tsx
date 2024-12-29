@@ -18,9 +18,13 @@ export interface AvailableBlock {
     label: string;
 }
 
-export const blocksToString = (blocks : Block[]) => {
+export const blocksToString = (blocks: Block[]) => {
     return blocks.map(block => block.type).join(',');
 }
+
+export const convertStringToBlockTypes = (blocksString: string): BLOCK_TYPES[] => {
+    return blocksString.split(',') as BLOCK_TYPES[];
+};
 
 interface BlockComponentProps {
     data?: RecipeData;

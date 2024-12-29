@@ -8,6 +8,11 @@ const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
 
+  const handleAddRecipe = () => {
+    localStorage.setItem('recipeStep', '1');
+    navigate('/add-recipe');
+  };
+
   if (isAuthenticated) {
     return (
       <div className="py-20 bg-gradient-to-br from-orange-50 to-white flex flex-col items-center justify-center text-center px-4">
@@ -23,7 +28,7 @@ const LandingPage: React.FC = () => {
 
           <div className="space-y-4">
             <button 
-              onClick={() => navigate('/add-recipe')}
+              onClick={handleAddRecipe}
               className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center space-x-2"
             >
               <PlusCircle className="mr-2" />
