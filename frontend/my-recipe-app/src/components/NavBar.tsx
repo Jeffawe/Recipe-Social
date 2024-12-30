@@ -10,7 +10,6 @@ import {
 import {
   ChefHat,
   User,
-  BookOpen,
   Settings,
   LogOut
 } from 'lucide-react';
@@ -33,7 +32,11 @@ const NavBar: React.FC = () => {
   }
 
   const handleProfile = () => {
-    navigate('/settings/profile')
+    if(user?._id){
+      navigate(`/profile/${user?._id}`)
+    }else{
+      navigate('/')
+    }
   }
 
   return (
@@ -60,10 +63,6 @@ const NavBar: React.FC = () => {
               <DropdownMenuItem className="cursor-pointer hover:bg-gray-50" onClick={handleProfile}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer hover:bg-gray-50">
-                <BookOpen className="mr-2 h-4 w-4" />
-                <span>My Recipes</span>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer hover:bg-gray-50" onClick={handleSettings}>
                 <Settings className="mr-2 h-4 w-4" />

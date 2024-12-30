@@ -1,6 +1,7 @@
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { StatusError } from './utils/Error.js';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -150,5 +151,95 @@ export const authController = {
       console.error('Login error:', error);
       res.status(401).json({ error: 'Authentication failed' });
     }
+  }
+};
+
+export const getUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .select('-password -isTestUser -__v') // Exclude sensitive fields
+      .lean();
+    
+    if (!user) {
+      throw new StatusError('User not found', 404);
+    }
+
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserCreatedRecipes = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .populate({
+        path: 'createdRecipes',
+        select: 'title description imageUrl cookingTime difficulty createdAt',
+        options: { sort: { createdAt: -1 } }
+      })
+      .select('createdRecipes')
+      .lean();
+
+    if (!user) {
+      throw new StatusError('User not found', 404);
+    }
+
+    res.json(user.createdRecipes);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserSavedRecipes = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .populate({
+        path: 'savedRecipes',
+        select: 'title description imageUrl cookingTime difficulty createdAt',
+        options: { sort: { createdAt: -1 } }
+      })
+      .select('savedRecipes')
+      .lean();
+
+    if (!user) {
+      throw new StatusError('User not found', 404);
+    }
+
+    res.json(user.savedRecipes);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserProfile = async (req, res, next) => {
+  try {
+    // Only allow updating specific fields
+    const allowedUpdates = ['username', 'bio', 'profilePicture'];
+    const updates = Object.keys(req.body)
+      .filter(key => allowedUpdates.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = req.body[key];
+        return obj;
+      }, {});
+
+    // Make sure user can only update their own profile
+    if (req.user.id !== req.params.id) {
+      throw new StatusError('Not authorized to update this profile', 403);
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select('-password -isTestUser -__v');
+
+    if (!user) {
+      throw new StatusError('User not found', 404);
+    }
+
+    res.json(user);
+  } catch (error) {
+    next(error);
   }
 };

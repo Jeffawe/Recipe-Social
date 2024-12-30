@@ -12,6 +12,7 @@ import ProfileSettings from './components/account/Settings Options/Profile';
 import AppearanceSettings from './components/account/Settings Options/Appearance';
 import HelpSupport from './components/account/Settings Options/HelpAndOptions';
 import CookingPreferences from './components/account/Settings Options/CookingPreferences';
+import ProfilePage from './components/account/Profile';
 
 const App: React.FC = () => {
   return (
@@ -33,6 +34,7 @@ const App: React.FC = () => {
               />
               <Route path="/templates" element={<TemplateEditor />} />
               <Route path="/recipe/:id" element={<RecipePage />} />
+              <Route path="/profile/:id" element={<ProfilePage />} />
               <Route path="/settings" element={<ProtectedRoute> <SettingsLayout /> </ProtectedRoute>}>
                 <Route path="account" element={<ProtectedRoute> <AccountSettings /> </ProtectedRoute>} />
                 <Route path="profile" element={<ProtectedRoute> <ProfileSettings /> </ProtectedRoute>} />

@@ -3,15 +3,53 @@ import { PlusCircle, BookOpen, ChefHat, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
 
   const handleAddRecipe = () => {
     localStorage.setItem('recipeStep', '1');
     navigate('/add-recipe');
   };
+
+  if (isLoading) {
+    return (
+      <div className="py-20 bg-gradient-to-br from-orange-50 to-white">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            {/* Left side skeleton */}
+            <div className="space-y-6">
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-8 w-48" />
+              </div>
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-12 w-40" />
+            </div>
+
+            {/* Right side skeleton */}
+            <div className="space-y-6 bg-white p-8 rounded-xl shadow-lg">
+              <Skeleton className="h-8 w-48" />
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-start space-x-3">
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                    <div className="flex-1">
+                      <Skeleton className="h-6 w-32 mb-2" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isAuthenticated) {
     return (
@@ -27,7 +65,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            <button 
+            <button
               onClick={handleAddRecipe}
               className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center space-x-2"
             >
@@ -35,7 +73,7 @@ const LandingPage: React.FC = () => {
               Add New Recipe
             </button>
 
-            <button 
+            <button
               onClick={() => navigate('/explore')}
               className="w-full bg-white border-2 border-orange-500 text-orange-500 py-3 rounded-lg hover:bg-orange-50 transition-colors flex items-center justify-center space-x-2"
             >
@@ -64,11 +102,11 @@ const LandingPage: React.FC = () => {
               Share Your Culinary Journey
             </h2>
             <p className="text-xl text-gray-600">
-              Join our community of food lovers. Share recipes, discover new dishes, 
+              Join our community of food lovers. Share recipes, discover new dishes,
               and connect with passionate chefs from around the world.
             </p>
             <div className="space-y-4 sm:space-y-0 sm:space-x-4 flex flex-col sm:flex-row">
-              <Button 
+              <Button
                 size="lg"
                 className="bg-orange-500 hover:bg-orange-600"
                 onClick={() => navigate('/explore')}
