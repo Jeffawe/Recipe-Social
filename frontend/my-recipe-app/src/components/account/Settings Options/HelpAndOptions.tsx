@@ -15,21 +15,21 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { HelpCircle, MessageSquare, Book, Users, Bookmark, Shield } from 'lucide-react';
+import { HelpCircle, MessageSquare, Users } from 'lucide-react';
 
 const HelpSupport : React.FC = () => {
   const faqs = [
     {
       question: "How do I share a recipe?",
-      answer: "To share a recipe, click the 'Create Recipe' button in the navigation bar. Fill in the recipe details, including ingredients and instructions, then click 'Publish'."
+      answer: "To share a recipe, click the 'Add Recipe' button in the Home Page. Fill in the recipe details, pick a template, then click 'Submit'."
     },
     {
       question: "Can I edit a recipe after publishing?",
-      answer: "Yes, you can edit your published recipes. Go to your profile, find the recipe you want to edit, and click the 'Edit' button."
+      answer: "Yes, you can edit your published recipes. Go to your profile, find the recipe you want to edit and open it. At the top right is a settings button that can be cicked to edit."
     },
     {
       question: "How do I save recipes from other users?",
-      answer: "To save a recipe, click the bookmark icon on any recipe card. You can find your saved recipes in your profile under 'Saved Recipes'."
+      answer: "To save a recipe, Click the star button on a recipe."
     },
     {
       question: "What are recipe collections?",
@@ -37,7 +37,7 @@ const HelpSupport : React.FC = () => {
     },
     {
       question: "How do I report inappropriate content?",
-      answer: "Click the three dots menu on any recipe or comment and select 'Report'. Choose the reason for reporting and our moderation team will review it."
+      answer: "Click the settings menu on any recipe and select 'Report'. Choose the reason for reporting and our moderation team will review it."
     }
   ];
 
@@ -98,39 +98,6 @@ const HelpSupport : React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Documentation */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Book className="h-5 w-5" />
-            Documentation
-          </CardTitle>
-          <CardDescription>
-            Learn more about using RecipeSocial
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button variant="outline" className="w-full justify-start">
-              <Book className="mr-2 h-4 w-4" />
-              Getting Started Guide
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <Bookmark className="mr-2 h-4 w-4" />
-              Recipe Creation Guide
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <Users className="mr-2 h-4 w-4" />
-              Community Guidelines
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <Shield className="mr-2 h-4 w-4" />
-              Privacy & Security
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Community Support */}
       <Card>
         <CardHeader>
@@ -151,40 +118,6 @@ const HelpSupport : React.FC = () => {
               </p>
               <Button variant="secondary">Visit Forum</Button>
             </div>
-            <div className="rounded-lg border p-4">
-              <h3 className="font-medium mb-2">Recipe Exchange Program</h3>
-              <p className="text-sm text-gray-500 mb-3">
-                Partner with other cooks to share recipes and cooking techniques.
-              </p>
-              <Button variant="secondary">Learn More</Button>
-            </div>
-            <div className="rounded-lg border p-4">
-              <h3 className="font-medium mb-2">Cooking Workshops</h3>
-              <p className="text-sm text-gray-500 mb-3">
-                Join live online workshops hosted by experienced community members.
-              </p>
-              <Button variant="secondary">Browse Workshops</Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick Links */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Links</CardTitle>
-          <CardDescription>
-            Helpful resources and information
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-            <a href="#" className="text-orange-600 hover:underline">Report a Bug</a>
-            <a href="#" className="text-orange-600 hover:underline">Feature Requests</a>
-            <a href="#" className="text-orange-600 hover:underline">System Status</a>
-            <a href="#" className="text-orange-600 hover:underline">Terms of Service</a>
-            <a href="#" className="text-orange-600 hover:underline">Privacy Policy</a>
-            <a href="#" className="text-orange-600 hover:underline">Cookie Settings</a>
           </div>
         </CardContent>
       </Card>

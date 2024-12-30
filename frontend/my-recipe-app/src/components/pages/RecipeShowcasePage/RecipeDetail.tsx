@@ -7,6 +7,7 @@ import BLOCK_COMPONENTS, { BLOCK_TYPES, convertStringToBlockTypes } from '../Tem
 import { useAuth } from '@/components/context/AuthContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const DEFAULT_TEMPLATE = import.meta.env.VITE_DEFAULT_TEMPLATE;
 
 const RecipePage : React.FC = () => {
   const { id } = useParams();
@@ -25,8 +26,11 @@ const RecipePage : React.FC = () => {
         const blockTypes = convertStringToBlockTypes(recipeData.templateString);
         setTemplate(blockTypes);
         return;
+      }else{
+        const blockTypes2 = convertStringToBlockTypes(DEFAULT_TEMPLATE);
+        setTemplate(blockTypes2);
       }
-  
+      
       // Check the loggedIn state to decide whether to include the Authorization header
       const headers = isAuthenticated
         ? { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -39,13 +43,15 @@ const RecipePage : React.FC = () => {
       );
   
       if (!recipeResponse.templateString) {
-        throw new Error('Template string is missing in the recipe data.');
+        setRecipe(recipeResponse);
+        const blockTypes2 = convertStringToBlockTypes(DEFAULT_TEMPLATE);
+        setTemplate(blockTypes2);
+      }else{
+        setRecipe(recipeResponse);
+        const blockTypes = convertStringToBlockTypes(recipeResponse.templateString!);
+        setTemplate(blockTypes);
       }
-  
-      // Process the recipe data
-      setRecipe(recipeResponse);
-      const blockTypes = convertStringToBlockTypes(recipeResponse.templateString);
-      setTemplate(blockTypes);
+
     } catch (error) {
       // Handle errors (e.g., 404 or network issues)
       console.error('Error fetching recipe:', error);

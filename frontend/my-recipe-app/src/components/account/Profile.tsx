@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { User } from '../types/auth';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const ProfilePage: React.FC = () => {
     const { id } = useParams();
     const { user: currentUser } = useAuth();
@@ -16,7 +18,7 @@ const ProfilePage: React.FC = () => {
     const fetchUserProfile = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch(`/api/users/${id}`);
+            const response = await fetch(`${API_BASE_URL}/auth/${id}`);
             if (!response.ok) throw new Error('Failed to fetch user profile');
             const data = await response.json();
             setProfile(data);
@@ -33,7 +35,7 @@ const ProfilePage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="container mx-auto px-4 py-8">
+            <div className="mx-auto px-4 py-8 bg-gradient-to-br from-orange-50 to-white">
                 <div className="flex flex-col items-center space-y-4">
                     <Skeleton className="h-32 w-32 rounded-full" />
                     <Skeleton className="h-8 w-48" />
@@ -54,7 +56,7 @@ const ProfilePage: React.FC = () => {
     const isOwnProfile = currentUser?._id === profile._id;
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="bg-gradient-to-br from-orange-50 to-white mx-auto px-4 py-8">
             <Card className="max-w-2xl mx-auto p-6">
                 <div className="flex flex-col items-center space-y-4">
                     {/* Profile Picture */}

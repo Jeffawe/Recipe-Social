@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Bookmark, ChefHat } from 'lucide-react';
 import { Recipe } from '../types/auth';
 import RecipeCard from '../pages/Explore/RecipeCard';
+import { useNavigate } from 'react-router-dom';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface MyRecipesProps {
     userId: string;
@@ -17,10 +20,12 @@ const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const navigate = useNavigate();
+
     const fetchRecipes = async (type: 'created' | 'saved') => {
         try {
             setIsLoading(true);
-            const response = await fetch(`/api/users/${userId}/recipes/${type}`);
+            const response = await fetch(`${API_BASE_URL}/auth/${userId}/recipes/${type}`);
             if (!response.ok) throw new Error(`Failed to fetch ${type} recipes`);
             const data = await response.json();
             if (type === 'created') {
@@ -34,6 +39,14 @@ const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
             setIsLoading(false);
         }
     };
+
+    const handleAddRecipe = () => {
+        navigate('/add-recipe')
+    }
+
+    const handleBrowseRecipe = () => {
+        navigate('/explore');
+    }
 
     useEffect(() => {
         fetchRecipes('created');
@@ -68,16 +81,14 @@ const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
 
                 {isLoading ? (
                     <div className="text-center py-8">Loading recipes...</div>
-                ) : error ? (
-                    <div className="text-center text-red-500 py-8">{error}</div>
                 ) : (
                     <>
                         <TabsContent value="created">
-                            {createdRecipes.length === 0 ? (
+                            {createdRecipes.length === 0 || error ? (
                                 <div className="text-center py-8">
                                     <p className="text-gray-500">No recipes created yet</p>
                                     {isOwnProfile && (
-                                        <Button className="mt-4">Create Your First Recipe</Button>
+                                        <Button className="mt-4 bg-orange-500 hover:bg-orange-700" onClick={handleAddRecipe}>Create Your First Recipe</Button>
                                     )}
                                 </div>
                             ) : (
@@ -91,10 +102,10 @@ const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
 
                         {isOwnProfile && (
                             <TabsContent value="saved">
-                                {savedRecipes.length === 0 ? (
+                                {savedRecipes.length === 0 || error ? (
                                     <div className="text-center py-8">
                                         <p className="text-gray-500">No saved recipes yet</p>
-                                        <Button variant="secondary" className="mt-4">
+                                        <Button onClick={handleBrowseRecipe} variant="secondary" className="bg-orange-500 hover:bg-orange-700 text-white mt-4">
                                             Browse Recipes
                                         </Button>
                                     </div>

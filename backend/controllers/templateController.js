@@ -25,8 +25,7 @@ export const saveTemplate = async (req, res) => {
 
         // Try to find existing template by content
         const existingTemplate = await Template.findOne({ 
-            template, 
-            author 
+            template
         });
 
         if (existingTemplate) {

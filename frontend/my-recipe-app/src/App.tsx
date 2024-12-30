@@ -19,7 +19,7 @@ const App: React.FC = () => {
     <AuthProvider>
       <RecipeProvider>
         <Router>
-          <div>
+          <div className='bg-gradient-to-br from-orange-50 to-white'>
             <NavBar />
             <Routes>
               <Route path="/" element={<Home />} />

@@ -15,9 +15,11 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { KeyRound, Mail, Trash2 } from 'lucide-react';
+import { useAuth } from '@/components/context/AuthContext';
 
 const AccountSettings = () => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { user } = useAuth();
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +64,7 @@ const AccountSettings = () => {
               <Label htmlFor="confirm-password">Confirm New Password</Label>
               <Input type="password" id="confirm-password" />
             </div>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={true}>
               {isSubmitting ? "Updating..." : "Update Password"}
             </Button>
           </form>
@@ -84,9 +86,9 @@ const AccountSettings = () => {
           <div className="space-y-4">
             <div>
               <Label htmlFor="email">Email Address</Label>
-              <Input type="email" id="email" defaultValue="user@example.com" />
+              <Input type="email" id="email" defaultValue={user?.email}/>
             </div>
-            <Button>Update Email</Button>
+            <Button disabled={true}>Update Email</Button>
           </div>
         </CardContent>
       </Card>

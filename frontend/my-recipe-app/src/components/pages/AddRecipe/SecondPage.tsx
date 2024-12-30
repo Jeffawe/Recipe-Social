@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Plus } from 'lucide-react';
 import { useRecipe } from '@/components/context/RecipeDataContext';
 import { RecipeFormData, Template, convertToRecipeData } from '@/components/types/auth';
-import BLOCK_COMPONENTS, { BLOCK_TYPES, convertStringToBlockTypes } from '../Templates/ComponentBlocks';
+import BLOCK_COMPONENTS, { convertStringToBlockTypes } from '../Templates/ComponentBlocks';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -66,9 +66,6 @@ const TemplateSelectionPage: React.FC<{
             return;
         }
 
-        //Stores the string in local storage for easy usage
-        localStorage.setItem('currentTemplateId', selectedTemplate.template);
-        localStorage.setItem('templateUsed', JSON.stringify(true));
         onSubmit(selectedTemplate._id, selectedTemplate.template);
     };
 

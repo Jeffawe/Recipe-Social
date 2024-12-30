@@ -11,9 +11,11 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Camera, Link as LinkIcon } from 'lucide-react';
+import { useAuth } from '@/components/context/AuthContext';
 
 const ProfileSettings = () => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { user } = useAuth();
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +45,7 @@ const ProfileSettings = () => {
         <CardContent>
           <div className="flex items-center gap-6">
             <img
-              src="/api/placeholder/100/100"
+              src={user?.profilePicture || '/api/placeholder/128/128'}
               alt="Profile"
               className="w-24 h-24 rounded-full object-cover"
             />
@@ -69,13 +71,13 @@ const ProfileSettings = () => {
           <form onSubmit={handleProfileUpdate} className="space-y-4">
             <div>
               <Label htmlFor="display-name">Display Name</Label>
-              <Input id="display-name" placeholder="Your display name" />
+              <Input id="display-name" placeholder={user?.username || "Your display name"} />
             </div>
             <div>
               <Label htmlFor="bio">Bio</Label>
               <Textarea 
                 id="bio" 
-                placeholder="Tell us about yourself and your cooking journey..."
+                placeholder={user?.bio || "Tell us about yourself and your cooking journey..."}
                 className="h-32"
               />
             </div>
@@ -111,7 +113,7 @@ const ProfileSettings = () => {
               <Label htmlFor="youtube">YouTube Channel</Label>
               <Input id="youtube" placeholder="Channel URL" />
             </div>
-            <Button>Save Social Links</Button>
+            <Button disabled={true}>Save Social Links</Button>
           </div>
         </CardContent>
       </Card>
