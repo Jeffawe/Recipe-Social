@@ -6,7 +6,7 @@ export const createRecipe = async (req, res) => {
     try {
         let uploadedImages = [];
         if (req.files && req.files.length > 0) {
-          uploadedImages = await uploadImagesToS3(req.files);
+            uploadedImages = await uploadImagesToS3(req.files);
         }
 
         const ingredients = JSON.parse(req.body.ingredients);
@@ -29,8 +29,18 @@ export const createRecipe = async (req, res) => {
             templateString: req.body.templateString[1] || ''
         });
 
-        await newRecipe.save();
-        res.status(201).json(newRecipe);
+        const savedRecipe = await newRecipe.save();
+
+        // Update the user's createdRecipes array
+        await User.findByIdAndUpdate(
+            req.user.userId,
+            {
+                $push: { createdRecipes: savedRecipe._id }
+            },
+            { new: true }
+        );
+
+        res.status(201).json(savedRecipe);
     } catch (error) {
         res.status(500).json({
             message: 'Error creating recipe',
@@ -39,55 +49,7 @@ export const createRecipe = async (req, res) => {
     }
 }
 
-// export const createRecipe = async (req, res) => {
-
-//     upload.array('images', 3)(req, res, async (err) => {
-//         if (err) {
-//             return res.status(400).json({
-//                 message: 'Image upload failed',
-//                 error: err.message
-//             });
-//         }
-
-//         try {
-//             // Upload images to S3
-//             const imageUrls = req.files ? await uploadImagesToS3(req.files) : [];
-
-//             // Parse JSON strings back to arrays
-//             const ingredients = JSON.parse(req.body.ingredients);
-//             const directions = JSON.parse(req.body.directions);
-
-//             const testUser = await User.findOne({ isTestUser: true });
-
-//             if (!testUser) {
-//                 return res.status(400).json({ message: 'No test user found. Create a test user first.' });
-//             }
-
-//             const newRecipe = new Recipe({
-//                 title: req.body.title,
-//                 description: req.body.description,
-//                 ingredients,
-//                 directions,
-//                 images: imageUrls,
-//                 cookingTime: JSON.parse(req.body.cookingTime),
-//                 nutrition: JSON.parse(req.body.nutrition),
-//                 category: req.body.category,
-//                 author: testUser._id
-//             });
-
-//             await newRecipe.save();
-//             res.status(201).json(newRecipe);
-//         } catch (error) {
-//             res.status(500).json({
-//                 message: 'Error creating recipe',
-//                 error: error.message
-//             });
-//         }
-//     });
-// };
-
 // Get all recipes with filtering and pagination
-
 export const getAllRecipes = async (req, res) => {
     try {
         // Extract query parameters
@@ -263,7 +225,7 @@ export const likeRecipe = async (req, res) => {
             { new: true }
         );
 
-        res.json({ 
+        res.json({
             success: true,
             likes: updatedRecipe.likes.length,
             isLiked: !isLiked
@@ -285,7 +247,7 @@ export const saveRecipe = async (req, res) => {
 
         await User.findByIdAndUpdate(req.user.userId, update);
 
-        res.json({ 
+        res.json({
             success: true,
             isSaved: !isSaved
         });

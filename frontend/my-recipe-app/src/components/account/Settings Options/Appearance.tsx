@@ -16,10 +16,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Moon, Sun, Type } from 'lucide-react';
+import { useAuth } from '@/components/context/AuthContext';
 
 const AppearanceSettings = () => {
   const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [reducedMotion, setReducedMotion] = React.useState(false);
+  const { user } = useAuth();
 
   return (
     <div className="space-y-6">
