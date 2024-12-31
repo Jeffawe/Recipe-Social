@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react';
 import { useRecipe } from '@/components/context/RecipeDataContext';
 import { RecipeFormData, Template, convertToRecipeData } from '@/components/types/auth';
 import BLOCK_COMPONENTS, { convertStringToBlockTypes } from '../Templates/ComponentBlocks';
+import { useAuth } from '@/components/context/AuthContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -24,6 +25,7 @@ const TemplateSelectionPage: React.FC<{
     const [selectedTemplate, setSelectedTemplate] = useState<Template>();
     const [isLoading, setIsLoading] = useState(true);
     const { setRecipeData, setIsEditing } = useRecipe();
+    const { user } = useAuth()
 
     React.useEffect(() => {
         fetchTemplates()
@@ -70,16 +72,18 @@ const TemplateSelectionPage: React.FC<{
     };
 
     const handleCreateTemplate = () => {
+        if(!user) return
         setIsEditing(true)
-        const convertedRecipeData = convertToRecipeData(recipeData)
+        const convertedRecipeData = convertToRecipeData(recipeData, user!)
         setRecipeData(convertedRecipeData)
         localStorage.setItem('recipeStep', '2');
         navigate('/templates');
     }
 
     const convertToPreview = ({ blocksString, data, className = '' }: ConvertToPreviewProps) => {
+        if(!user) return
         const blockTypes = convertStringToBlockTypes(blocksString)// Convert the string back to an array of block types
-        const convertedData = convertToRecipeData(data)
+        const convertedData = convertToRecipeData(data, user!)
         return (
             <div className={`flex flex-col gap-4${className}`}>
                 {blockTypes.map((blockType, index) => {

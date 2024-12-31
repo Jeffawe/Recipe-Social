@@ -2,6 +2,7 @@ import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { StatusError } from './utils/Error.js';
+import { getPresignedUrl } from './services/s3services.js';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -15,7 +16,7 @@ export const authController = {
       const response = await fetch(
         `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`
       );
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Google API error:', errorData); // Add this to debug
@@ -88,14 +89,14 @@ export const authController = {
         if (!isValid) {
           return res.status(401).json({ error: 'Invalid credentials' });
         }
-  
+
         // Create JWT token for existing user
         const token = jwt.sign(
           { userId: existingUser._id },
           process.env.JWT_SECRET,
           { expiresIn: '7d' }
         );
-  
+
         return res.json({ token, user: existingUser });
       }
 
@@ -159,7 +160,7 @@ export const getUserProfile = async (req, res, next) => {
     const user = await User.findById(req.params.id)
       .select('-password -isTestUser -__v') // Exclude sensitive fields
       .lean();
-    
+
     if (!user) {
       throw new StatusError('User not found', 404);
     }
@@ -170,12 +171,13 @@ export const getUserProfile = async (req, res, next) => {
   }
 };
 
+
 export const getUserCreatedRecipes = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id)
       .populate({
         path: 'createdRecipes',
-        select: 'title description imageUrl cookingTime difficulty createdAt',
+        select: 'title description images cookingTime difficulty createdAt',
         options: { sort: { createdAt: -1 } }
       })
       .select('createdRecipes')
@@ -185,7 +187,24 @@ export const getUserCreatedRecipes = async (req, res, next) => {
       throw new StatusError('User not found', 404);
     }
 
-    res.json(user.createdRecipes);
+    const updatedRecipes = user.createdRecipes && user.createdRecipes.length > 0
+      ? await Promise.all(
+        user.createdRecipes.map(async (recipe) => {
+          // Add pre-signed URLs for each image
+          if (recipe.images && recipe.images.length > 0) {
+            recipe.images = await Promise.all(
+              recipe.images.map(async (image) => ({
+                ...image,
+                url: await getPresignedUrl(image.fileName),
+              }))
+            );
+          }
+          return recipe;
+        })
+      )
+      : [];
+
+    res.json(updatedRecipes);
   } catch (error) {
     next(error);
   }
@@ -196,7 +215,7 @@ export const getUserSavedRecipes = async (req, res, next) => {
     const user = await User.findById(req.params.id)
       .populate({
         path: 'savedRecipes',
-        select: 'title description imageUrl cookingTime difficulty createdAt',
+        select: 'title description images cookingTime createdAt',
         options: { sort: { createdAt: -1 } }
       })
       .select('savedRecipes')
@@ -206,11 +225,29 @@ export const getUserSavedRecipes = async (req, res, next) => {
       throw new StatusError('User not found', 404);
     }
 
-    res.json(user.savedRecipes);
+    const updatedRecipes = user.savedRecipes && user.savedRecipes.length > 0
+      ? await Promise.all(
+        user.savedRecipes.map(async (recipe) => {
+          // Add pre-signed URLs for each image
+          if (recipe.images && recipe.images.length > 0) {
+            recipe.images = await Promise.all(
+              recipe.images.map(async (image) => ({
+                ...image,
+                url: await getPresignedUrl(image.fileName),
+              }))
+            );
+          }
+          return recipe;
+        })
+      )
+      : [];
+
+    res.json(updatedRecipes);
   } catch (error) {
     next(error);
   }
 };
+
 
 export const updateUserProfile = async (req, res, next) => {
   try {

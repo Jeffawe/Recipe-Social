@@ -4,6 +4,7 @@ export interface User {
   email: string;
   bio: string;
   profilePicture?: string;
+  createdAt: string;
 }
 
 export interface AuthContextType {
@@ -33,7 +34,7 @@ export interface Ingredient {
   unit: string;
 }
 
-export interface Image {
+interface Image {
   fileName: string;
   url: string;
   size?: number;
@@ -63,10 +64,10 @@ export interface RecipeFormData {
   ingredients: Ingredient[];
   directions: Direction[];
   images: File[];
-  cookingTime: CookingTime
-  nutrition: Nutrition
-  category: string;
-  templateString: string;
+  cookingTime: CookingTime;
+  nutrition: Nutrition;
+  category: RecipeCategory;
+  templateString?: string;
 }
 
 export interface Template {
@@ -76,42 +77,35 @@ export interface Template {
   public: boolean;
 }
 
-export type Recipe = {
+export interface RecipeData {
   _id: string;
   title: string;
-  description: string;
+  description?: string;
   ingredients: Ingredient[];
   directions: Direction[];
-  images: Image[];
-  cookingTime: CookingTime;
-  nutrition: Nutrition;
-  category: 'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack' | 'Appetizer' | 'Beverage';
-  author: {
-    _id: string;
-    username: string;
-  };
-  comments: string[];
-  faqs: string[];
-  savedBy: string[];
-  likes: string[];
-  createdAt: string;
-  updatedAt: string;
-};
-
-export interface RecipeData {
-  title?: string;
-  description?: string;
-  ingredients?: Ingredient[];
-  directions?: Direction[];
   images?: Image[];
   cookingTime?: CookingTime;
   nutrition?: Nutrition;
-  category?: string;
+  category?: RecipeCategory;
+  comments?: string[];  // Or full Comment interface if populated
+  faqs?: string[];      // Or full FAQ interface if populated
+  likes?: string[];     // Or full User interface if populated
+  featured?: boolean;
+  latest?: boolean;
+  popular?: boolean;
+  templateID?: string;
   templateString?: string;
+  author: {
+    _id: string;
+    username: string;
+    email: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type RecipesResponse = {
-  recipes: Recipe[];
+  recipes: RecipeData[];
   totalPages: number;
   currentPage: number;
 };
@@ -126,21 +120,47 @@ export type FilterState = {
 
 // Define the state type
 export interface RecipeDetailState {
-  recipe: Recipe | null;
+  recipe: RecipeData | null;
   loading: boolean;
   error: string | null;
 }
 
 
-export const convertToRecipeData = (formData: RecipeFormData): RecipeData => {
+export const convertToRecipeData = (formData: RecipeFormData, user: User): RecipeData => {
   const images: Image[] = formData.images.map(file => ({
-      fileName: file.name,
-      url: URL.createObjectURL(file),
-      size: file.size
+    fileName: file.name,
+    url: URL.createObjectURL(file),
+    size: file.size
   }));
 
+  // Create a temporary _id until the server assigns a real one
+  const tempId = 'temp-' + Date.now();
+  
   return {
-      ...formData,
-      images
+    _id: tempId,
+    title: formData.title,
+    description: formData.description,
+    ingredients: formData.ingredients,
+    directions: formData.directions,
+    images,
+    cookingTime: formData.cookingTime,
+    nutrition: formData.nutrition,
+    category: formData.category,
+    templateString: formData.templateString,
+    comments: [],
+    faqs: [],
+    likes: [],
+    featured: false,
+    latest: false,
+    popular: false,
+    author: {
+      _id: user._id,
+      username: user.username,
+      email: user.email
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   };
 };
+
+export type RecipeCategory = 'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack' | 'Appetizer' | 'Beverage';

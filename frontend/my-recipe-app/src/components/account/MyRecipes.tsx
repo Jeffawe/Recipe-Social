@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Bookmark, ChefHat } from 'lucide-react';
-import { Recipe } from '../types/auth';
+import { RecipeData } from '../types/auth';
 import RecipeCard from '../pages/Explore/RecipeCard';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,8 +15,8 @@ interface MyRecipesProps {
 
 const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
     const [activeTab, setActiveTab] = useState('created');
-    const [createdRecipes, setCreatedRecipes] = useState<Recipe[]>([]);
-    const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
+    const [createdRecipes, setCreatedRecipes] = useState<RecipeData[]>([]);
+    const [savedRecipes, setSavedRecipes] = useState<RecipeData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -29,9 +29,64 @@ const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
             if (!response.ok) throw new Error(`Failed to fetch ${type} recipes`);
             const data = await response.json();
             if (type === 'created') {
-                setCreatedRecipes(data);
+                setCreatedRecipes(
+                    data.map((item: RecipeData) => ({
+                        _id: item._id,
+                        title: item.title,
+                        description: item.description || "", // Provide a default value if missing
+                        ingredients: item.ingredients || [], // Ensure this is an empty array if not provided
+                        directions: item.directions || [],   // Ensure this is an empty array if not provided
+                        images: item.images || [],           // Ensure this is an empty array if not provided
+                        cookingTime: item.cookingTime || { prep: 0, cook: 0 }, // Default cookingTime if missing
+                        nutrition: item.nutrition || null,   // Optional field can default to null
+                        category: item.category || null,     // Optional field can default to null
+                        comments: item.comments || [],       // Default to an empty array
+                        faqs: item.faqs || [],               // Default to an empty array
+                        likes: item.likes || [],             // Default to an empty array
+                        featured: item.featured || false,    // Default to false
+                        latest: item.latest || false,        // Default to false
+                        popular: item.popular || false,      // Default to false
+                        templateID: item.templateID || null, // Default to null
+                        templateString: item.templateString || "", // Default to an empty string
+                        author: item.author || {             // Default author object if missing
+                            _id: "",
+                            username: "Unknown",
+                            email: "",
+                        },
+                        createdAt: item.createdAt || new Date().toISOString(),
+                        updatedAt: item.updatedAt || new Date().toISOString(),
+                    }))
+                );
             } else {
-                setSavedRecipes(data);
+                setSavedRecipes(
+                    data.map((item: RecipeData) => ({
+                        _id: item._id,
+                        title: item.title,
+                        description: item.description || "", // Provide a default value if missing
+                        ingredients: item.ingredients || [], // Ensure this is an empty array if not provided
+                        directions: item.directions || [],   // Ensure this is an empty array if not provided
+                        images: item.images || [],           // Ensure this is an empty array if not provided
+                        cookingTime: item.cookingTime || { prep: 0, cook: 0 }, // Default cookingTime if missing
+                        nutrition: item.nutrition || null,   // Optional field can default to null
+                        category: item.category || null,     // Optional field can default to null
+                        comments: item.comments || [],       // Default to an empty array
+                        faqs: item.faqs || [],               // Default to an empty array
+                        likes: item.likes || [],             // Default to an empty array
+                        featured: item.featured || false,    // Default to false
+                        latest: item.latest || false,        // Default to false
+                        popular: item.popular || false,      // Default to false
+                        templateID: item.templateID || null, // Default to null
+                        templateString: item.templateString || "", // Default to an empty string
+                        author: item.author || {             // Default author object if missing
+                            _id: "",
+                            username: "Unknown",
+                            email: "",
+                        },
+                        createdAt: item.createdAt || new Date().toISOString(),
+                        updatedAt: item.updatedAt || new Date().toISOString(),
+                    }))
+                );
+                console.log(savedRecipes)
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
@@ -94,7 +149,7 @@ const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {createdRecipes.map((recipe) => (
-                                        <RecipeCard recipe={recipe} />
+                                        <RecipeCard key={recipe._id} recipe={recipe} />
                                     ))}
                                 </div>
                             )}
@@ -112,7 +167,7 @@ const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {savedRecipes.map((recipe) => (
-                                            <RecipeCard recipe={recipe} />
+                                            <RecipeCard key={recipe._id} recipe={recipe} />
                                         ))}
                                     </div>
                                 )}

@@ -1,21 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/components/context/AuthContext';
+import axios from 'axios';
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle
 } from '@/components/ui/card';
-import type { Recipe } from '../../types/auth.js';
+import type { RecipeData } from '../../types/auth.js';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Star } from 'lucide-react';
+import { Clock, Star, Heart } from 'lucide-react';
 
 interface RecipeCardProps {
-    recipe: Recipe;
+    recipe: RecipeData;
 }
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     const navigate = useNavigate();
+    const { user, isAuthenticated } = useAuth();
+    const [isLiked, setIsLiked] = useState(recipe.likes?.includes(user?._id || ''));
+    const [likesCount, setLikesCount] = useState(recipe.likes?.length || 0);
+    const [isSaved, setIsSaved] = useState(false);
 
     const {
         _id,
@@ -24,11 +32,60 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         images = [],
         category = "Uncategorized",
         cookingTime = { prep: 0, cook: 0 },
-        likes = []
     } = recipe;
 
-    // Calculate total time with fallback
     const totalTime = (cookingTime?.prep || 0) + (cookingTime?.cook || 0);
+
+    const handleLike = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!isAuthenticated) {
+            return;
+        }
+
+        try {
+            const response: any = await axios.post(
+                `${API_BASE_URL}/recipes/${_id}/like`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
+
+            if (response.data.success) {
+                setIsLiked(response.data.isLiked);
+                setLikesCount(response.data.likes);
+            }
+        } catch (error) {
+            console.error('Error liking recipe:', error);
+        }
+    };
+
+    const handleSave = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!isAuthenticated) {
+            return;
+        }
+
+        try {
+            const response:any = await axios.post(
+                `${API_BASE_URL}/recipes/${_id}/save`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
+
+            if (response.data.success) {
+                setIsSaved(response.data.isSaved);
+            }
+        } catch (error) {
+            console.error('Error saving recipe:', error);
+        }
+    };
 
     return (
         <Card
@@ -55,9 +112,26 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                             {totalTime} mins
                         </span>
                     </div>
-                    <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-yellow-500" />
-                        <span className="text-sm text-gray-600">{likes.length}</span>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={handleLike}
+                            className="flex items-center gap-1"
+                            title={isAuthenticated ? 'Like recipe' : 'Login to like recipe'}
+                        >
+                            <Heart
+                                className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-500'} hover:text-red-500 transition-colors`}
+                            />
+                            <span className="text-sm text-gray-600">{likesCount}</span>
+                        </button>
+                        <button
+                            onClick={handleSave}
+                            className="flex items-center gap-1"
+                            title={isAuthenticated ? 'Save recipe' : 'Login to save recipe'}
+                        >
+                            <Star
+                                className={`w-4 h-4 ${isSaved ? 'fill-yellow-500 text-yellow-500' : 'text-gray-500'} hover:text-yellow-500 transition-colors`}
+                            />
+                        </button>
                     </div>
                 </div>
             </CardContent>

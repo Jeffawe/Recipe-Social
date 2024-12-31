@@ -78,7 +78,7 @@ const TemplateEditor: React.FC = () => {
         method: 'POST',
         url: `${API_BASE_URL}/templates/save`,
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         data: {

@@ -23,7 +23,14 @@ export const blocksToString = (blocks: Block[]) => {
 }
 
 export const convertStringToBlockTypes = (blocksString: string): BLOCK_TYPES[] => {
-    return blocksString.split(',') as BLOCK_TYPES[];
+    // Remove any quotes and split
+    const cleanString = blocksString.replace(/['"]/g, '');
+    const blockTypes = cleanString.split(',');
+    
+    // Validate each block type exists in enum
+    return blockTypes.filter(type => 
+        Object.values(BLOCK_TYPES).includes(type as BLOCK_TYPES)
+    ) as BLOCK_TYPES[];
 };
 
 interface BlockComponentProps {

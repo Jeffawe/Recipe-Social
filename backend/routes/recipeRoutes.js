@@ -6,7 +6,9 @@ import {
   getSingleRecipe, 
   updateRecipe, 
   deleteRecipe, 
-  searchRecipes 
+  searchRecipes ,
+  likeRecipe,
+  saveRecipe
 } from '../controllers/recipeController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
@@ -28,6 +30,10 @@ router.get('/:id', getSingleRecipe);
 
 // Route to create a new recipe
 router.post('/', authenticateToken, upload.array('images', 5), createRecipe);
+
+router.post('/:id/like', authenticateToken, likeRecipe);
+
+router.post('/:id/save', authenticateToken, saveRecipe);
 
 // Route to search recipes
 router.get('/search', searchRecipes);

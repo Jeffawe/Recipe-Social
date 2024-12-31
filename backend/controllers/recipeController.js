@@ -1,13 +1,13 @@
-import { uploadImagesToS3 } from './services/s3services.js';
+import { uploadImagesToS3, getPresignedUrl } from './services/s3services.js';
 import Recipe from '../models/Recipe.js';
+import User from '../models/User.js';
 
 export const createRecipe = async (req, res) => {
     try {
-        if (!req.files || req.files.length === 0) {
-            return res.status(400).json({ message: 'No images provided' });
+        let uploadedImages = [];
+        if (req.files && req.files.length > 0) {
+          uploadedImages = await uploadImagesToS3(req.files);
         }
-
-        const uploadedImages = await uploadImagesToS3(req.files);
 
         const ingredients = JSON.parse(req.body.ingredients);
         const directions = JSON.parse(req.body.directions);
@@ -26,7 +26,7 @@ export const createRecipe = async (req, res) => {
             latest: false,
             popular: false,
             templateID: req.body.templateID || null,
-            templateString: req.body.templateString || ''
+            templateString: req.body.templateString[1] || ''
         });
 
         await newRecipe.save();
@@ -92,12 +92,11 @@ export const getAllRecipes = async (req, res) => {
     try {
         // Extract query parameters
         const {
-            page = 1, //This is used for pagination.
-            limit = 10, //limit that exists per page
+            page = 1,
+            limit = 10,
             category
         } = req.query;
 
-        // Build filter object
         const filter = {};
         if (category) filter.category = category;
 
@@ -111,9 +110,20 @@ export const getAllRecipes = async (req, res) => {
         // Count total recipes for pagination
         const total = await Recipe.countDocuments(filter);
 
-        // Respond with recipes and pagination info
+        const recipesWithUrls = await Promise.all(
+            recipes.map(async (recipe) => {
+                const imagesWithUrls = await Promise.all(
+                    recipe.images.map(async (image) => {
+                        const url = await getPresignedUrl(image.fileName);
+                        return { ...image.toObject(), url };
+                    })
+                );
+                return { ...recipe.toObject(), images: imagesWithUrls };
+            })
+        );
+
         res.json({
-            recipes,
+            recipes: recipesWithUrls,
             totalPages: Math.ceil(total / limit),
             currentPage: page
         });
@@ -137,7 +147,14 @@ export const getSingleRecipe = async (req, res) => {
             return res.status(404).json({ message: 'Recipe not found' });
         }
 
-        res.json(recipe);
+        const imagesWithUrls = await Promise.all(
+            recipe.images.map(async (image) => {
+                const url = await getPresignedUrl(image.fileName);
+                return { ...image.toObject(), url };
+            })
+        );
+
+        res.json({ ...recipe.toObject(), images: imagesWithUrls });
     } catch (error) {
         res.status(500).json({
             message: 'Error fetching recipe',
@@ -157,7 +174,7 @@ export const updateRecipe = async (req, res) => {
         }
 
         // Check if current user is the author
-        if (recipe.author.toString() !== req.user._id.toString()) {
+        if (recipe.author.toString() !== req.user.userId.toString()) {
             return res.status(403).json({ message: 'Not authorized to update this recipe' });
         }
 
@@ -192,7 +209,7 @@ export const deleteRecipe = async (req, res) => {
         }
 
         // Check if current user is the author
-        if (recipe.author.toString() !== req.user._id.toString()) {
+        if (recipe.author.toString() !== req.user.userID.toString()) {
             return res.status(403).json({ message: 'Not authorized to delete this recipe' });
         }
 
@@ -227,5 +244,52 @@ export const searchRecipes = async (req, res) => {
             message: 'Error searching recipes',
             error: error.message
         });
+    }
+};
+
+export const likeRecipe = async (req, res) => {
+    try {
+        const recipe = await Recipe.findById(req.params.id);
+        const user = req.user.userId;
+
+        const isLiked = recipe.likes.includes(user);
+        const update = isLiked
+            ? { $pull: { likes: user } }
+            : { $addToSet: { likes: user } };
+
+        const updatedRecipe = await Recipe.findByIdAndUpdate(
+            req.params.id,
+            update,
+            { new: true }
+        );
+
+        res.json({ 
+            success: true,
+            likes: updatedRecipe.likes.length,
+            isLiked: !isLiked
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const saveRecipe = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        const recipeId = req.params.id;
+
+        const isSaved = user.savedRecipes.includes(recipeId);
+        const update = isSaved
+            ? { $pull: { savedRecipes: recipeId } }
+            : { $addToSet: { savedRecipes: recipeId } };
+
+        await User.findByIdAndUpdate(req.user.userId, update);
+
+        res.json({ 
+            success: true,
+            isSaved: !isSaved
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };

@@ -1,12 +1,12 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { v4 as uuidv4 } from 'uuid';
+import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import crypto from 'crypto';
 
 // Function to generate SHA256 hash of an uploaded file buffer
 const generateFileHash = (fileBuffer) => {
-  const hash = crypto.createHash('sha256');
-  hash.update(fileBuffer);  // Feed the file buffer into the hash function
-  return hash.digest('hex');  // Return the hash as a hex string
+    const hash = crypto.createHash('sha256');
+    hash.update(fileBuffer);  // Feed the file buffer into the hash function
+    return hash.digest('hex');  // Return the hash as a hex string
 };
 
 const s3 = new S3Client({
@@ -38,5 +38,20 @@ export const uploadImagesToS3 = async (files, folder = 'recipes') => {
         return uploadedFiles;
     } catch (error) {
         throw new Error('Error uploading images to S3: ' + error.message);
+    }
+};
+
+export const getPresignedUrl = async (fileName) => {
+    try {
+        const command = new GetObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: fileName,
+        });
+
+        const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 }); // Expires in 1 hour
+        return signedUrl;
+    } catch (error) {
+        console.error("Error generating pre-signed URL:", error);
+        throw new Error("Could not generate pre-signed URL");
     }
 };

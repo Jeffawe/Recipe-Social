@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Filter, Loader2 } from 'lucide-react';
-import type { Recipe, FilterState, RecipesResponse } from '../../types/auth.js';
+import type { RecipeData, FilterState, RecipesResponse } from '../../types/auth.js';
 import RecipeCard from './RecipeCard.js';
 import FilterSidebar from './FilterSidebar.js';
 
@@ -26,7 +26,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
   const [activeTab, setActiveTab] = useState('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [recipes, setRecipes] = useState<RecipeData[]>([]);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1

@@ -3,7 +3,7 @@ import Template from '../models/Template.js';
 export const createTemplate = async (req, res) => {
     try {
         const { template, public: isPublic } = req.body;
-        const author = req.user._id; // Assuming you have auth middleware setting req.user
+        const author = req.user.userId; // Assuming you have auth middleware setting req.user
 
         const newTemplate = new Template({
             template,
@@ -21,7 +21,7 @@ export const createTemplate = async (req, res) => {
 export const saveTemplate = async (req, res) => {
     try {
         const { template, public: isPublic } = req.body;
-        const author = req.user._id;
+        const author = req.user.userId;
 
         // Try to find existing template by content
         const existingTemplate = await Template.findOne({ 
@@ -65,7 +65,7 @@ export const getAllTemplates = async (req, res) => {
 
 export const getUserTemplates = async (req, res) => {
     try {
-        const userId = req.user._id;
+        const userId = req.user.userId;
         const templates = await Template.find({
             author: userId
         }).populate('author', 'username');
@@ -79,7 +79,7 @@ export const getUserTemplates = async (req, res) => {
 export const getUserTemplate = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = req.user._id;
+        const userId = req.user.userId;
  
         const template = await Template.findOne({
             _id: id,
@@ -100,7 +100,7 @@ export const updateTemplate = async (req, res) => {
     try {
         const { id } = req.params;
         const { template, public: isPublic } = req.body;
-        const userId = req.user._id;
+        const userId = req.user.userId;
 
         const updatedTemplate = await Template.findOneAndUpdate(
             { _id: id, author: userId }, // Ensure user owns the template
@@ -121,7 +121,7 @@ export const updateTemplate = async (req, res) => {
 export const deleteTemplate = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = req.user._id;
+        const userId = req.user.userId;
 
         const deletedTemplate = await Template.findOneAndDelete({
             _id: id,
