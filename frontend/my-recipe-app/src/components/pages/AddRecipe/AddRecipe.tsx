@@ -37,7 +37,6 @@ const AddRecipe: React.FC = () => {
     const finalData = convertToRecipeData(recipeData, user!);
     finalData.templateString = templateString;
     setRecipeData(finalData);
-    console.log(templateString)
   
     setIsUploading(true);
     try {

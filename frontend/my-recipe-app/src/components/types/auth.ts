@@ -163,4 +163,44 @@ export const convertToRecipeData = (formData: RecipeFormData, user: User): Recip
   };
 };
 
+export const convertToRecipeFormData = async (recipeData: RecipeData): Promise<RecipeFormData> => {
+  const files: File[] = await Promise.all(
+    recipeData.images?.map(async (image) => {
+      return urlToFile(image.url, image.fileName);
+    }) || []
+  );
+
+  return {
+    title: recipeData.title,
+    description: recipeData.description || "",
+    ingredients: recipeData.ingredients.map(ingredient => ({
+      name: ingredient.name,
+      quantity: ingredient.quantity,
+      unit: ingredient.unit
+    })),
+    directions: recipeData.directions.map(direction => ({
+      step: direction.step,
+      instruction: direction.instruction
+    })),
+    images: files,
+    cookingTime: recipeData.cookingTime || { prep: 0, cook: 0 },
+    nutrition: recipeData.nutrition || {
+      servings: 0,
+      calories: 0,
+      protein: 0,
+      carbohydrates: 0,
+      fat: 0
+    },
+    category: recipeData.category || "Snack", // Default to Snack if category is missing
+    templateString: recipeData.templateString
+  };
+};
+
+const urlToFile = async (url: string, fileName: string): Promise<File> => {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  const file = new File([blob], fileName, { type: blob.type });
+  return file;
+};
+
 export type RecipeCategory = 'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack' | 'Appetizer' | 'Beverage';

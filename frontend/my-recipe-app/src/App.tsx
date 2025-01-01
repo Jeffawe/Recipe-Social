@@ -32,6 +32,14 @@ const App: React.FC = () => {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/update-recipe/:id"
+                element={
+                  <ProtectedRoute>
+                    <AddRecipe />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/templates" element={<TemplateEditor />} />
               <Route path="/recipe/:id" element={<RecipePage />} />
               <Route path="/profile/:id" element={<ProfilePage />} />

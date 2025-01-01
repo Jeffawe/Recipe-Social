@@ -20,7 +20,7 @@ const DEFAULT_TEMPLATE = import.meta.env.VITE_DEFAULT_TEMPLATE;
 
 const RecipePage: React.FC = () => {
   const { id } = useParams();
-  const { recipeData } = useRecipe();
+  const { recipeData, setRecipeData } = useRecipe();
   const { isAuthenticated, user } = useAuth();
   const [recipe, setRecipe] = useState<RecipeData | null>(null);
   const [template, setTemplate] = useState<BLOCK_TYPES[]>([]);
@@ -37,6 +37,7 @@ const RecipePage: React.FC = () => {
       // If recipeData is already available, use it directly
       if (recipeData?.templateString) {
         setRecipe(recipeData);
+        setRecipeData(null)
         const blockTypes = convertStringToBlockTypes(recipeData.templateString);
         setTemplate(blockTypes);
         return;
