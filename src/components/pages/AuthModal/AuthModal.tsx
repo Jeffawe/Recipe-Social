@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Mail } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from "@/hooks/use-toast"
-import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
+import { DialogTitle } from '@radix-ui/react-dialog';
 
 const AuthModal = () => {
   const { login, register, googleLogin, isLoading } = useAuth();
@@ -89,15 +89,10 @@ const AuthModal = () => {
         </div>
       </DialogTrigger>
       <DialogContent
-        className="sm:max-w-md"
+        className="sm:max-w-md text-center text-bold"
         onClick={(e) => e.stopPropagation()} // Prevent event bubbling
       >
         <DialogTitle className='text-black'>{isLogin ? 'Login' : 'Register'}</DialogTitle>
-        <DialogDescription>
-          {isLogin
-            ? 'Please enter your email and password to log in.'
-            : 'Fill in the details below to create a new account.'}
-        </DialogDescription>
         <form onSubmit={handleSubmit} className="space-y-4" autoComplete={isLogin ? "on" : "off"} >
           {!isLogin && (
             <div className="space-y-2">

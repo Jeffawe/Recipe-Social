@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,9 +16,16 @@ import {
 } from '@/components/ui/card';
 import { KeyRound, Mail, Trash2 } from 'lucide-react';
 import { useAuth } from '@/components/context/AuthContext';
+import ErrorToast from '@/components/ErrorToast';
+import DeleteRecipeModal from '@/components/pages/RecipeShowcasePage/DeleteRecipeModal';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const AccountSettings = () => {
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isToastOpen, setIsToastOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { user } = useAuth();
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -28,9 +35,30 @@ const AccountSettings = () => {
     setTimeout(() => setIsSubmitting(false), 1000);
   };
 
-  const handleDelete = async ()  => {
+  const handleDelete = async () => {
+    try {
+      // Make a DELETE request to the API
+      const response = await fetch(`${API_BASE_URL}/auth/${user?._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`, // Replace with your token management logic
+        },
+      });
 
-  }
+      // Check if the deletion was successful
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete user');
+      }
+
+      console.log('User deleted successfully!');
+    } catch (error: any) {
+      console.error('Error deleting user:', error.message);
+      setErrorMessage(error)
+      setIsToastOpen(true);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -86,7 +114,7 @@ const AccountSettings = () => {
           <div className="space-y-4">
             <div>
               <Label htmlFor="email">Email Address</Label>
-              <Input type="email" id="email" defaultValue={user?.email}/>
+              <Input type="email" id="email" defaultValue={user?.email} />
             </div>
             <Button disabled={true}>Update Email</Button>
           </div>
@@ -117,6 +145,20 @@ const AccountSettings = () => {
           </Button>
         </CardContent>
       </Card>
+
+      <DeleteRecipeModal
+        isOpen={isDeleteModalOpen}
+        deleteAction={handleDelete}
+        onClose={() => setIsDeleteModalOpen(false)}
+      />
+
+      {/* Error Toast */}
+      <ErrorToast
+        message={errorMessage}
+        isOpen={isToastOpen}
+        onClose={() => setIsToastOpen(false)}
+        duration={5000} // Toast will disappear after 5 seconds
+      />
     </div>
   );
 };

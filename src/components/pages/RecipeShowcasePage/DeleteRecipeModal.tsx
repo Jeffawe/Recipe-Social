@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/context/AuthContext';
 import {
   Dialog,
@@ -11,36 +10,33 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
 
 interface DeleteModalProps {
   isOpen: boolean;
+  deleteAction: () => Promise<void>;
   onClose: () => void;
-  recipeId: string;
 }
 
 const DeleteRecipeModal: React.FC<DeleteModalProps> = ({
   isOpen,
+  deleteAction,
   onClose,
-  recipeId,
 }) => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
 
   const handleDelete = async () => {
-    if (username !== user?.username) {
-      setError('Username does not match');
-      return;
-    }
-
     try {
-      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/recipes/${recipeId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      if (username !== user?.username) {
+        setError('Username does not match');
+        return;
+      }
+
+      await deleteAction();
       onClose();
-      navigate('/');
+
+      onClose();
     } catch (err) {
       setError('Failed to delete recipe');
     }

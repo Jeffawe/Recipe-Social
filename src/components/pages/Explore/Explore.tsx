@@ -143,7 +143,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
           <Loader2 className="w-8 h-8 animate-spin" />
         </div>
       ) : error ? (
-        <div className="text-center text-red-500">{error}</div>
+        <div className="text-center text-black">Can't access any recipes at this time</div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

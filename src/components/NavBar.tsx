@@ -14,6 +14,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import ProfileAvatar from './account/ProfileAvatar';
 
 const NavBar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -32,9 +33,9 @@ const NavBar: React.FC = () => {
   }
 
   const handleProfile = () => {
-    if(user?._id){
+    if (user?._id) {
       navigate(`/profile/${user?._id}`)
-    }else{
+    } else {
       navigate('/')
     }
   }
@@ -53,11 +54,13 @@ const NavBar: React.FC = () => {
           // User is logged in - Show profile dropdown
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none">
-              <img
-                src={user?.profilePicture || '/api/placeholder/40/40'}
-                alt="User Profile"
-                className="w-10 h-10 rounded-full border-2 border-orange-500 hover:ring-2 hover:ring-orange-300 transition-all"
-              />
+              <div className="hover:ring-2 hover:ring-orange-300 rounded-full transition-all">
+                <ProfileAvatar
+                  imageUrl={user?.profilePicture}
+                  name={user?.username || 'User'}
+                  size="md"
+                />
+              </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 bg-white shadow-lg rounded-md border">
               <DropdownMenuItem className="cursor-pointer hover:bg-gray-50" onClick={handleProfile}>

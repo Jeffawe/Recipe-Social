@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,16 +12,52 @@ import {
 } from '@/components/ui/card';
 import { Camera, Link as LinkIcon } from 'lucide-react';
 import { useAuth } from '@/components/context/AuthContext';
+import ProfileAvatar from '../ProfileAvatar';
+import ErrorToast from '@/components/ErrorToast';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const ProfileSettings = () => {
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const { user } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isToastOpen, setIsToastOpen] = useState(false);
+  const [error, setError] = useState('')
+  const { user, setUser } = useAuth();
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Add your profile update logic here
-    setTimeout(() => setIsSubmitting(false), 1000);
+    const displayName = (document.getElementById('display-name') as HTMLInputElement).value;
+    const bio = (document.getElementById('bio') as HTMLTextAreaElement).value;
+
+    const updatedData = {
+      username: displayName || user?.username,
+      bio: bio || user?.bio
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${user?._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+
+      const updatedUser = await response.json();
+
+      setUser(updatedUser);
+
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setIsSubmitting(false);
+      setIsToastOpen(true);
+    }
   };
 
   return (
@@ -44,10 +80,10 @@ const ProfileSettings = () => {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-6">
-            <img
-              src={user?.profilePicture || '/api/placeholder/128/128'}
-              alt="Profile"
-              className="w-24 h-24 rounded-full object-cover"
+            <ProfileAvatar
+              imageUrl={user?.profilePicture}
+              name={user?.username || 'User'}
+              size="lg"
             />
             <div className="space-y-2">
               <Button>Upload New Picture</Button>
@@ -75,8 +111,8 @@ const ProfileSettings = () => {
             </div>
             <div>
               <Label htmlFor="bio">Bio</Label>
-              <Textarea 
-                id="bio" 
+              <Textarea
+                id="bio"
                 placeholder={user?.bio || "Tell us about yourself and your cooking journey..."}
                 className="h-32"
               />
@@ -117,6 +153,13 @@ const ProfileSettings = () => {
           </div>
         </CardContent>
       </Card>
+
+      <ErrorToast
+        message={error}
+        isOpen={isToastOpen}
+        onClose={() => setIsToastOpen(false)}
+        duration={5000}
+      />
     </div>
   );
 };

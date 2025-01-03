@@ -76,6 +76,17 @@ const RecipePage: React.FC = () => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/recipes/${recipe?._id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      navigate('/');
+    } catch (err) {
+      setError('Failed to delete recipe');
+    }
+  };
+
   useEffect(() => {
     fetchRecipeData();
   }, [id, recipeData]);
@@ -156,8 +167,8 @@ const RecipePage: React.FC = () => {
 
         <DeleteRecipeModal
           isOpen={isDeleteModalOpen}
+          deleteAction={handleDelete}
           onClose={() => setIsDeleteModalOpen(false)}
-          recipeId={recipe._id}
         />
 
         <ReportRecipeModal

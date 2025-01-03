@@ -5,12 +5,13 @@ import MyRecipes from './MyRecipes';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { User } from '../types/auth';
+import ProfileAvatar from './ProfileAvatar';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const ProfilePage: React.FC = () => {
     const { id } = useParams();
-    const { user: currentUser } = useAuth();
+    const { user } = useAuth();
     const [profile, setProfile] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -53,7 +54,7 @@ const ProfilePage: React.FC = () => {
         );
     }
 
-    const isOwnProfile = currentUser?._id === profile._id;
+    const isOwnProfile = user?._id === profile._id;
 
     return (
         <div className="bg-gradient-to-br from-orange-50 to-white mx-auto px-4 py-8">
@@ -61,10 +62,10 @@ const ProfilePage: React.FC = () => {
                 <div className="flex flex-col items-center space-y-4">
                     {/* Profile Picture */}
                     <div className="relative">
-                        <img
-                            src={profile.profilePicture || '/api/placeholder/128/128'}
-                            alt={profile.username}
-                            className="w-32 h-32 rounded-full object-cover border-4 border-orange-500"
+                        <ProfileAvatar
+                            imageUrl={user?.profilePicture}
+                            name={user?.username || 'User'}
+                            size="lg"
                         />
                     </div>
 
