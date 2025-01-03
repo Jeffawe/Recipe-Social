@@ -86,7 +86,6 @@ const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
                         updatedAt: item.updatedAt || new Date().toISOString(),
                     }))
                 );
-                console.log(savedRecipes)
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');

@@ -70,8 +70,6 @@ const RecipePage: React.FC = () => {
         error instanceof Error ? error.message : 'An unexpected error occurred'
       );
     } finally {
-      console.log(recipe?.author._id)
-      console.log(user?._id)
       setIsLoading(false);
     }
   };
@@ -137,6 +135,7 @@ const RecipePage: React.FC = () => {
                 <>
                   <DropdownMenuItem onClick={() => {
                     setIsOpen(false);
+                    setRecipeData(recipe)
                     navigate(`/update-recipe/${id}`);
                   }}>
                     Update Recipe

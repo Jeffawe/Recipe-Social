@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Plus } from 'lucide-react';
 import { useRecipe } from '@/components/context/RecipeDataContext';
-import { RecipeFormData, Template, convertToRecipeData } from '@/components/types/auth';
+import { RecipeFormData, Template } from '@/components/types/auth';
 import BLOCK_COMPONENTS, { convertStringToBlockTypes } from '../Templates/ComponentBlocks';
 import { useAuth } from '@/components/context/AuthContext';
+import { convertToRecipeData } from '@/components/helperFunctions/helperFunctions';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 

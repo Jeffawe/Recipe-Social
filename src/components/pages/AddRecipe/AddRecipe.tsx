@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import RecipeDetailsPage from './FirstPage';
 import TemplateSelectionPage from './SecondPage';
-import { convertToRecipeData, RecipeFormData } from '@/components/types/auth';
+import { RecipeFormData, Image, RecipeData } from '@/components/types/auth';
 import { useRecipe } from '@/components/context/RecipeDataContext';
 import { useAuth } from '@/components/context/AuthContext';
 
@@ -31,23 +31,23 @@ const AddRecipe: React.FC = () => {
   };
 
   const handleFinalSubmit = async (templateId: string, templateString: string) => {
-    if (!recipeData) return;
-    if (!user) return;
-  
-    const finalData = convertToRecipeData(recipeData, user!);
-    finalData.templateString = templateString;
-    setRecipeData(finalData);
-  
+    if (!recipeData || !user) {
+      throw new Error('Recipe data or user information is missing.');
+    }
+
     setIsUploading(true);
+
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication token is missing. Please log in again.');
+      }
       const formData = new FormData();
-  
-      // Use finalData instead of recipeData
+
       Object.entries(recipeData).forEach(([key, value]) => {
         if (key === 'images' && Array.isArray(value)) {
-          value.forEach((image: File) => {
-            formData.append('images', image);
+          value.forEach((image: Image) => {
+            formData.append('images', image.file); // Use the `file` property
           });
         } else if (typeof value === 'object' && value !== null) {
           formData.append(key, JSON.stringify(value));
@@ -55,7 +55,7 @@ const AddRecipe: React.FC = () => {
           formData.append(key, String(value)); // Ensure non-object values are strings
         }
       });
-  
+
       // Append templateId and templateString
       formData.append('templateId', templateId);
       formData.append('templateString', templateString);
@@ -66,7 +66,11 @@ const AddRecipe: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
+      const createdRecipe: RecipeData = response.data;
+
+      setRecipeData(createdRecipe);
+
       localStorage.setItem('recipeStep', '1');
       navigate(`/recipe/${response.data._id}`);
     } catch (error) {
@@ -76,7 +80,7 @@ const AddRecipe: React.FC = () => {
       setIsUploading(false);
     }
   };
-  
+
 
   return (
     <>
@@ -84,6 +88,8 @@ const AddRecipe: React.FC = () => {
         <RecipeDetailsPage
           onNext={handleFirstStepComplete}
           initialData={recipeData || undefined}
+          addOrUpdate='Add'
+          goBack={() => navigate('/')}
         />
       )}
       {step === 2 && recipeData && (

@@ -36,15 +36,16 @@ const ProfilePage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="mx-auto px-4 py-8 bg-gradient-to-br from-orange-50 to-white">
-                <div className="flex flex-col items-center space-y-4">
+            <div className="mx-auto px-10 py-8 bg-gradient-to-br from-orange-50 to-white w-full">
+                <div className="flex flex-col items-center space-y-4 max-w-screen-xl mx-auto">
                     <Skeleton className="h-32 w-32 rounded-full" />
-                    <Skeleton className="h-8 w-48" />
-                    <Skeleton className="h-16 w-96" />
+                    <Skeleton className="h-8 w-full sm:w-1/2 md:w-1/3 lg:w-1/4" />
+                    <Skeleton className="h-16 w-full sm:w-3/4 md:w-2/3 lg:w-1/2" />
                 </div>
             </div>
         );
     }
+
 
     if (error || !profile) {
         return (

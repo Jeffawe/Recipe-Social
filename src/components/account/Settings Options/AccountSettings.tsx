@@ -152,13 +152,14 @@ const AccountSettings = () => {
         onClose={() => setIsDeleteModalOpen(false)}
       />
 
-      {/* Error Toast */}
-      <ErrorToast
-        message={errorMessage}
-        isOpen={isToastOpen}
-        onClose={() => setIsToastOpen(false)}
-        duration={5000} // Toast will disappear after 5 seconds
-      />
+      {errorMessage &&
+        <ErrorToast
+          message={errorMessage}
+          isOpen={isToastOpen}
+          onClose={() => setIsToastOpen(false)}
+          duration={5000} // Toast will disappear after 5 seconds
+        />
+      }
     </div>
   );
 };

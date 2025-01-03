@@ -1,10 +1,13 @@
 import { useAuth } from '@/components/context/AuthContext';
 import { useRecipe } from '@/components/context/RecipeDataContext';
-import { convertToRecipeFormData, RecipeData, RecipeFormData } from '@/components/types/auth';
+import { RecipeData, RecipeFormData, Image } from '@/components/types/auth';
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import RecipeDetailsPage from '../AddRecipe/FirstPage';
 import TemplateSelectionPage from '../AddRecipe/SecondPage';
+import ErrorToast from '@/components/ErrorToast';
+import axios from 'axios';
+import { convertToRecipeFormData } from '@/components/helperFunctions/helperFunctions';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -15,6 +18,7 @@ const UpdateRecipe: React.FC = () => {
     const { recipeData, setRecipeData } = useRecipe();
     const { isAuthenticated, user } = useAuth();
     const [error, setError] = useState<string | null>(null);
+    const [isToastOpen, setIsToastOpen] = useState(false);
     const [step, setStep] = useState(() => {
         return Number(localStorage.getItem('recipeStep')) || 1;
     });
@@ -33,7 +37,7 @@ const UpdateRecipe: React.FC = () => {
     };
 
     const handleFinalSubmit = async (templateId: string, templateString: string) => {
-        if (!recipeData) return;
+        if (!recipe) return;  // Check recipe instead of recipeData
         if (!user) return;
 
         setIsUploading(true);
@@ -41,24 +45,41 @@ const UpdateRecipe: React.FC = () => {
             const token = localStorage.getItem('token');
             const formData = new FormData();
 
-            // Use finalData instead of recipeData
-            Object.entries(recipeData).forEach(([key, value]) => {
+            Object.entries(recipe).forEach(([key, value]) => {
                 if (key === 'images' && Array.isArray(value)) {
-                    value.forEach((image: File) => {
-                        formData.append('images', image);
+                    value.forEach((image: Image) => {
+                        if (image.file) {
+                            // New image: append the file for upload
+                            formData.append('images', image.file);
+                        } else {
+                            // Existing image: append its metadata
+                            formData.append('existingImages', JSON.stringify({
+                                fileName: image.fileName,
+                                url: image.url,
+                                size: image.size || 0,
+                            }));
+                        }
                     });
                 } else if (typeof value === 'object' && value !== null) {
                     formData.append(key, JSON.stringify(value));
                 } else {
-                    formData.append(key, String(value)); // Ensure non-object values are strings
+                    formData.append(key, String(value));
                 }
             });
 
-            // Append templateId and templateString
             formData.append('templateId', templateId);
             formData.append('templateString', templateString);
 
-            const response: any = await axios.post(`${API_BASE_URL}/recipes`, formData, {
+            // For updates, use PUT method and include the recipe ID
+            const method = id ? 'put' : 'post';
+            const url = id
+                ? `${API_BASE_URL}/recipes/${id}`
+                : `${API_BASE_URL}/recipes`;
+
+            await axios({
+                method,
+                url,
+                data: formData,
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`,
@@ -66,10 +87,9 @@ const UpdateRecipe: React.FC = () => {
             });
 
             localStorage.setItem('recipeStep', '1');
-            navigate(`/recipe/${response.data._id}`);
-        } catch (error) {
-            console.error('Error creating recipe:', error);
-            alert('Failed to create recipe. Please try again.');
+            navigate(`/recipe/${id}`);
+        } catch (error: any) {
+            setError(error);
         } finally {
             setIsUploading(false);
         }
@@ -124,6 +144,8 @@ const UpdateRecipe: React.FC = () => {
                 <RecipeDetailsPage
                     onNext={handleFirstStepComplete}
                     initialData={recipe || undefined}
+                    addOrUpdate='Update'
+                    goBack={() => navigate(`/recipe/${id}`)}
                 />
             )}
             {step === 2 && recipeData && (
@@ -142,6 +164,14 @@ const UpdateRecipe: React.FC = () => {
                     </div>
                 </div>
             )}
+            {error &&
+                < ErrorToast
+                    message={error}
+                    isOpen={isToastOpen}
+                    onClose={() => setIsToastOpen(false)}
+                    duration={5000}
+                />
+            }
         </>
     );
 };

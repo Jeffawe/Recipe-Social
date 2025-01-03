@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { Direction, Ingredient, RecipeFormData } from '@/components/types/auth';
+import { Direction, Ingredient, RecipeFormData, Image } from '@/components/types/auth';
 
 const MAX_FILE_SIZE = parseInt(import.meta.env.VITE_MAX_FILE_SIZE, 10);
 const MAX_FILES = parseInt(import.meta.env.VITE_MAX_FILES, 10);
-
 
 // First Page Component
 const RecipeDetailsPage: React.FC<{
     onNext: (data: RecipeFormData) => void;
     initialData?: RecipeFormData;
-}> = ({ onNext, initialData }) => {
-    const navigate = useNavigate();
+    addOrUpdate: string
+    goBack: () => void
+}> = ({ onNext, initialData, addOrUpdate, goBack }) => {
     const [title, setTitle] = useState(initialData?.title || '');
     const [description, setDescription] = useState(initialData?.description || '');
     const [ingredients, setIngredients] = useState<Ingredient[]>(
@@ -21,7 +20,7 @@ const RecipeDetailsPage: React.FC<{
     const [directions, setDirections] = useState<Direction[]>(
         initialData?.directions || [{ step: 1, instruction: '' }]
     );
-    const [images, setImages] = useState<File[]>(initialData?.images || []);
+    const [images, setImages] = useState<Image[]>(initialData?.images || []);
     const [cookingTime, setCookingTime] = useState(initialData?.cookingTime || {
         prep: 0,
         cook: 0
@@ -35,10 +34,23 @@ const RecipeDetailsPage: React.FC<{
     });
     const [category, setCategory] = useState(initialData?.category || 'Dinner');
 
+    useEffect(() => {
+        if (initialData) {
+          setTitle(initialData.title)
+          setDescription(initialData.description)
+          setCategory(initialData.category)
+          setCookingTime(initialData.cookingTime)
+          setDirections(initialData.directions)
+          setNutrition(initialData.nutrition)
+          setImages(initialData.images)
+          console.log(initialData)
+        }
+      }, [initialData]);
+
     const handleExit = () => {
         const isConfirmed = window.confirm('Are you sure you want to exit? Any unsaved changes will be lost.');
         if (isConfirmed) {
-            navigate('/');
+            goBack()
         }
     };
 
@@ -83,29 +95,36 @@ const RecipeDetailsPage: React.FC<{
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            const files = Array.from(e.target.files);
-
-            if (images.length + files.length > MAX_FILES) {
-                alert(`You can only upload up to ${MAX_FILES} images.`);
-                e.target.value = '';
-                return;
+          const files = Array.from(e.target.files);
+    
+          if (images.length + files.length > MAX_FILES) {
+            alert(`You can only upload up to ${MAX_FILES} images.`);
+            e.target.value = '';
+            return;
+          }
+    
+          const validFiles = files.filter((file) => {
+            if (file.size > MAX_FILE_SIZE) {
+              alert(`File "${file.name}" is too large. Maximum size is ${MAX_FILE_SIZE / 1e6}MB.`);
+              return false;
             }
-
-            const validFiles = files.filter(file => {
-                if (file.size > MAX_FILE_SIZE) {
-                    alert(`File "${file.name}" is too large. Maximum size is 5MB.`);
-                    return false;
-                }
-                if (!file.type.startsWith('image/')) {
-                    alert(`File "${file.name}" is not an image.`);
-                    return false;
-                }
-                return true;
-            });
-
-            setImages(prevImages => [...prevImages, ...validFiles]);
+            if (!file.type.startsWith('image/')) {
+              alert(`File "${file.name}" is not an image.`);
+              return false;
+            }
+            return true;
+          });
+    
+          const newImages = validFiles.map((file) => ({
+            fileName: '',
+            file,
+            url: URL.createObjectURL(file),
+            size: file.size,
+          }));
+    
+          setImages((prevImages) => [...prevImages, ...newImages]);
         }
-    };
+      };
 
     const removeImage = (indexToRemove: number) => {
         setImages((prevImages) => prevImages.filter((_, index) => index !== indexToRemove));
@@ -121,7 +140,7 @@ const RecipeDetailsPage: React.FC<{
                 <X size={24} />
             </button>
 
-            <h1 className="text-3xl font-bold mb-6 text-gray-600">Add Recipe Details</h1>
+            <h1 className="text-3xl font-bold mb-6 text-gray-600">{addOrUpdate} Recipe Details</h1>
 
             {/* Rest of your form JSX here, but change the submit button text to "Next" */}
             {/* ... */}
@@ -262,7 +281,7 @@ const RecipeDetailsPage: React.FC<{
                                     <div key={index} className="relative">
                                         {/* Image Preview */}
                                         <img
-                                            src={URL.createObjectURL(image)}
+                                            src={image.url || URL.createObjectURL(image.file)}
                                             alt={`Preview ${index}`}
                                             className="w-24 h-24 object-cover rounded"
                                         />

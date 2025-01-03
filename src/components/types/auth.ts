@@ -7,6 +7,8 @@ export interface User {
   createdAt: string;
 }
 
+export type RecipeCategory = 'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack' | 'Appetizer' | 'Beverage';
+
 export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -35,9 +37,10 @@ export interface Ingredient {
   unit: string;
 }
 
-interface Image {
+export interface Image {
   fileName: string;
   url: string;
+  file: File
   size?: number;
 };
 
@@ -64,7 +67,7 @@ export interface RecipeFormData {
   description: string;
   ingredients: Ingredient[];
   directions: Direction[];
-  images: File[];
+  images: Image[];
   cookingTime: CookingTime;
   nutrition: Nutrition;
   category: RecipeCategory;
@@ -125,83 +128,3 @@ export interface RecipeDetailState {
   loading: boolean;
   error: string | null;
 }
-
-
-export const convertToRecipeData = (formData: RecipeFormData, user: User): RecipeData => {
-  const images: Image[] = formData.images.map(file => ({
-    fileName: file.name,
-    url: URL.createObjectURL(file),
-    size: file.size
-  }));
-
-  // Create a temporary _id until the server assigns a real one
-  const tempId = 'temp-' + Date.now();
-  
-  return {
-    _id: tempId,
-    title: formData.title,
-    description: formData.description,
-    ingredients: formData.ingredients,
-    directions: formData.directions,
-    images,
-    cookingTime: formData.cookingTime,
-    nutrition: formData.nutrition,
-    category: formData.category,
-    templateString: formData.templateString,
-    comments: [],
-    faqs: [],
-    likes: [],
-    featured: false,
-    latest: false,
-    popular: false,
-    author: {
-      _id: user._id,
-      username: user.username,
-      email: user.email
-    },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-};
-
-export const convertToRecipeFormData = async (recipeData: RecipeData): Promise<RecipeFormData> => {
-  const files: File[] = await Promise.all(
-    recipeData.images?.map(async (image) => {
-      return urlToFile(image.url, image.fileName);
-    }) || []
-  );
-
-  return {
-    title: recipeData.title,
-    description: recipeData.description || "",
-    ingredients: recipeData.ingredients.map(ingredient => ({
-      name: ingredient.name,
-      quantity: ingredient.quantity,
-      unit: ingredient.unit
-    })),
-    directions: recipeData.directions.map(direction => ({
-      step: direction.step,
-      instruction: direction.instruction
-    })),
-    images: files,
-    cookingTime: recipeData.cookingTime || { prep: 0, cook: 0 },
-    nutrition: recipeData.nutrition || {
-      servings: 0,
-      calories: 0,
-      protein: 0,
-      carbohydrates: 0,
-      fat: 0
-    },
-    category: recipeData.category || "Snack", // Default to Snack if category is missing
-    templateString: recipeData.templateString
-  };
-};
-
-const urlToFile = async (url: string, fileName: string): Promise<File> => {
-  const response = await fetch(url);
-  const blob = await response.blob();
-  const file = new File([blob], fileName, { type: blob.type });
-  return file;
-};
-
-export type RecipeCategory = 'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack' | 'Appetizer' | 'Beverage';

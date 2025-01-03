@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,16 +18,25 @@ import ErrorToast from '@/components/ErrorToast';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const ProfileSettings = () => {
+  const { user, setUser } = useAuth();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isToastOpen, setIsToastOpen] = useState(false);
+  const [displayName, setDisplayName] = useState(user?.username || '');
+  const [bio, setBio] = useState(user?.bio || '');
   const [error, setError] = useState('')
-  const { user, setUser } = useAuth();
+
+  useEffect(() => {
+    // Update the state if user data changes
+    if (user) {
+      setDisplayName(user.username);
+      setBio(user.bio);
+    }
+  }, [user]);
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const displayName = (document.getElementById('display-name') as HTMLInputElement).value;
-    const bio = (document.getElementById('bio') as HTMLTextAreaElement).value;
 
     const updatedData = {
       username: displayName || user?.username,
@@ -35,7 +44,7 @@ const ProfileSettings = () => {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/users/${user?._id}`, {
+      const response = await fetch(`${API_BASE_URL}/auth/${user?._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -107,13 +116,20 @@ const ProfileSettings = () => {
           <form onSubmit={handleProfileUpdate} className="space-y-4">
             <div>
               <Label htmlFor="display-name">Display Name</Label>
-              <Input id="display-name" placeholder={user?.username || "Your display name"} />
+              <Input
+                id="display-name"
+                placeholder="Your display name"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+              />
             </div>
             <div>
               <Label htmlFor="bio">Bio</Label>
               <Textarea
                 id="bio"
-                placeholder={user?.bio || "Tell us about yourself and your cooking journey..."}
+                placeholder="Tell us about yourself and your cooking journey..."
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
                 className="h-32"
               />
             </div>
@@ -154,12 +170,14 @@ const ProfileSettings = () => {
         </CardContent>
       </Card>
 
-      <ErrorToast
-        message={error}
-        isOpen={isToastOpen}
-        onClose={() => setIsToastOpen(false)}
-        duration={5000}
-      />
+      {error &&
+        <ErrorToast
+          message={error}
+          isOpen={isToastOpen}
+          onClose={() => setIsToastOpen(false)}
+          duration={5000}
+        />
+      }
     </div>
   );
 };

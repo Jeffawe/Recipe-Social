@@ -13,6 +13,7 @@ import AppearanceSettings from './components/account/Settings Options/Appearance
 import HelpSupport from './components/account/Settings Options/HelpAndOptions';
 import CookingPreferences from './components/account/Settings Options/CookingPreferences';
 import ProfilePage from './components/account/Profile';
+import UpdateRecipe from './components/pages/UpdateRecipe/UpdateRecipe';
 
 const App: React.FC = () => {
   return (
@@ -36,7 +37,7 @@ const App: React.FC = () => {
                 path="/update-recipe/:id"
                 element={
                   <ProtectedRoute>
-                    <AddRecipe />
+                    <UpdateRecipe />
                   </ProtectedRoute>
                 }
               />
