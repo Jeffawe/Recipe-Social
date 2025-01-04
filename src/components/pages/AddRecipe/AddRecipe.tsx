@@ -6,6 +6,7 @@ import TemplateSelectionPage from './SecondPage';
 import { RecipeFormData, Image, RecipeData } from '@/components/types/auth';
 import { useRecipe } from '@/components/context/RecipeDataContext';
 import { useAuth } from '@/components/context/AuthContext';
+import ErrorToast from '@/components/ErrorToast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -16,6 +17,8 @@ const AddRecipe: React.FC = () => {
   });
   const [recipeData, setrecipeData] = useState<RecipeFormData | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isToastOpen, setIsToastOpen] = useState(false);
   const { setRecipeData } = useRecipe();
   const { user } = useAuth()
 
@@ -47,7 +50,7 @@ const AddRecipe: React.FC = () => {
       Object.entries(recipeData).forEach(([key, value]) => {
         if (key === 'images' && Array.isArray(value)) {
           value.forEach((image: Image) => {
-            formData.append('images', image.file); // Use the `file` property
+            formData.append('images', image.file!); // Use the `file` property
           });
         } else if (typeof value === 'object' && value !== null) {
           formData.append(key, JSON.stringify(value));
@@ -73,9 +76,13 @@ const AddRecipe: React.FC = () => {
 
       localStorage.setItem('recipeStep', '1');
       navigate(`/recipe/${response.data._id}`);
-    } catch (error) {
-      console.error('Error creating recipe:', error);
-      alert('Failed to create recipe. Please try again.');
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError(error.message || 'An unexpected error occurred');
+      }
+      setIsToastOpen(true)
     } finally {
       setIsUploading(false);
     }
@@ -97,6 +104,7 @@ const AddRecipe: React.FC = () => {
           onBack={handleBack}
           onSubmit={handleFinalSubmit}
           recipeData={recipeData}
+          addOrSubmit='Create'
         />
       )}
       {isUploading && (
@@ -108,6 +116,14 @@ const AddRecipe: React.FC = () => {
           </div>
         </div>
       )}
+      {error &&
+        <ErrorToast
+          message={error}
+          isOpen={isToastOpen}
+          onClose={() => setIsToastOpen(false)}
+          duration={5000}
+        />
+      }
     </>
   );
 };

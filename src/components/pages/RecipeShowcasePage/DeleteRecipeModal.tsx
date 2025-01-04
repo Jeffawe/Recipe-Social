@@ -46,19 +46,21 @@ const DeleteRecipeModal: React.FC<DeleteModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Recipe</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className='text-black'>Delete Recipe</DialogTitle>
+          <DialogDescription className='text-red-500'>
             This action cannot be undone. Please type your username "{user?.username}" to confirm.
           </DialogDescription>
         </DialogHeader>
         <Input
           value={username}
+          autoComplete="off"
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter your username"
+          className='text-black'
         />
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" className='text-black' onClick={onClose}>Cancel</Button>
           <Button variant="destructive" onClick={handleDelete}>Delete</Button>
         </DialogFooter>
       </DialogContent>

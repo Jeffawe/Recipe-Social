@@ -45,30 +45,42 @@ const UpdateRecipe: React.FC = () => {
             const token = localStorage.getItem('token');
             const formData = new FormData();
 
+            const existingImagesArray : any = [];
             Object.entries(recipe).forEach(([key, value]) => {
                 if (key === 'images' && Array.isArray(value)) {
                     value.forEach((image: Image) => {
                         if (image.file) {
-                            // New image: append the file for upload
                             formData.append('images', image.file);
                         } else {
-                            // Existing image: append its metadata
-                            formData.append('existingImages', JSON.stringify({
+                            existingImagesArray.push({
                                 fileName: image.fileName,
                                 url: image.url,
                                 size: image.size || 0,
-                            }));
+                            });
                         }
                     });
                 } else if (typeof value === 'object' && value !== null) {
-                    formData.append(key, JSON.stringify(value));
+                    if (value !== undefined) {
+                        formData.append(key, JSON.stringify(value));
+                    } else {
+                        console.warn(`Skipping undefined value for ${key}`);
+                    }
                 } else {
-                    formData.append(key, String(value));
+                    formData.append(key, String(value || ''));
                 }
             });
 
-            formData.append('templateId', templateId);
-            formData.append('templateString', templateString);
+            if (existingImagesArray.length > 0) {
+                formData.append('existingImages', JSON.stringify(existingImagesArray));
+            }
+
+            if (templateId) {
+                formData.append('templateId', templateId);
+            }
+
+            if (templateString) {
+                formData.append('templateString', templateString);
+            }
 
             // For updates, use PUT method and include the recipe ID
             const method = id ? 'put' : 'post';
@@ -89,7 +101,12 @@ const UpdateRecipe: React.FC = () => {
             localStorage.setItem('recipeStep', '1');
             navigate(`/recipe/${id}`);
         } catch (error: any) {
-            setError(error);
+            if (error.response?.data?.message) {
+                setError(error.response.data.message);
+            } else {
+                setError(error.message || 'An unexpected error occurred');
+            }
+            setIsToastOpen(true)
         } finally {
             setIsUploading(false);
         }
@@ -153,22 +170,26 @@ const UpdateRecipe: React.FC = () => {
                     onBack={handleBack}
                     onSubmit={handleFinalSubmit}
                     recipeData={recipe!}
+                    addOrSubmit='Update'
                 />
             )}
             {isUploading && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-500 mx-auto mb-4"></div>
-                        <p className="text-xl font-semibold text-gray-700">Creating Recipe...</p>
-                        <p className="text-sm text-gray-500 mt-2">Please wait while we save your recipe</p>
+                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto mb-4"></div>
+                        <p className="text-xl font-semibold text-gray-700">Updating Recipe...</p>
+                        <p className="text-sm text-gray-500 mt-2">Please wait while we update your recipe</p>
                     </div>
                 </div>
             )}
             {error &&
-                < ErrorToast
+                <ErrorToast
                     message={error}
                     isOpen={isToastOpen}
-                    onClose={() => setIsToastOpen(false)}
+                    onClose={() => {
+                        setError(null)
+                        setIsToastOpen(false)
+                    }}
                     duration={5000}
                 />
             }

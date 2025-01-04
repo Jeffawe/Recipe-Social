@@ -20,7 +20,8 @@ const TemplateSelectionPage: React.FC<{
     onBack: () => void;
     onSubmit: (templateId: string, templateString: string) => void;
     recipeData: RecipeFormData;
-}> = ({ onBack, onSubmit, recipeData }) => {
+    addOrSubmit: string;
+}> = ({ onBack, onSubmit, recipeData, addOrSubmit }) => {
     const navigate = useNavigate();
     const [templates, setTemplates] = useState<Template[]>([]);
     const [selectedTemplate, setSelectedTemplate] = useState<Template>();
@@ -73,7 +74,7 @@ const TemplateSelectionPage: React.FC<{
     };
 
     const handleCreateTemplate = () => {
-        if(!user) return
+        if (!user) return
         setIsEditing(true)
         const convertedRecipeData = convertToRecipeData(recipeData, user!)
         setRecipeData(convertedRecipeData)
@@ -82,7 +83,7 @@ const TemplateSelectionPage: React.FC<{
     }
 
     const convertToPreview = ({ blocksString, data, className = '' }: ConvertToPreviewProps) => {
-        if(!user) return
+        if (!user) return
         const blockTypes = convertStringToBlockTypes(blocksString)// Convert the string back to an array of block types
         const convertedData = convertToRecipeData(data, user!)
         return (
@@ -112,7 +113,7 @@ const TemplateSelectionPage: React.FC<{
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-500"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500"></div>
             </div>
         );
     }
@@ -149,8 +150,8 @@ const TemplateSelectionPage: React.FC<{
                         className={`
                   border rounded-lg p-4 cursor-pointer transition-all
                   ${selectedTemplate?._id === template._id
-                                ? 'border-green-500 shadow-lg transform scale-105'
-                                : 'border-gray-200 hover:border-green-300'
+                                ? 'border-orange-500 shadow-lg transform scale-105'
+                                : 'border-gray-200 hover:border-orange-300'
                             }
                 `}
                     >
@@ -177,7 +178,7 @@ const TemplateSelectionPage: React.FC<{
                         }
               `}
                 >
-                    Create Recipe
+                    {addOrSubmit} Recipe
                 </button>
             </div>
         </div>

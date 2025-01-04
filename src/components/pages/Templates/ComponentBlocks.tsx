@@ -62,7 +62,7 @@ const IngredientsList: React.FC<BlockComponentProps> = ({ data }) => (
 const DirectionsList: React.FC<BlockComponentProps> = ({ data }) => (
     <div className="mb-6">
         <h2 className="text-2xl text-black font-semibold mb-3">Directions</h2>
-        <ol className="list-decimal pl-5">
+        <ol className="list-decimal text-black pl-5">
             {(data?.directions || []).map((dir, idx) => (
                 <li key={idx} className="mb-2">
                     {dir.instruction}

@@ -136,6 +136,7 @@ const RecipePage: React.FC = () => {
                   <DropdownMenuItem onClick={() => {
                     setIsOpen(false);
                     setRecipeData(recipe)
+                    localStorage.setItem('recipeStep', '1');
                     navigate(`/update-recipe/${id}`);
                   }}>
                     Update Recipe

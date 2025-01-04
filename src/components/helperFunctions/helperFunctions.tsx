@@ -5,7 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const convertToRecipeData = (formData: RecipeFormData, user: User): RecipeData => {
     const images: Image[] = formData.images.map(image => ({
       fileName: image.fileName,
-      url: URL.createObjectURL(image.file),
+      url: '',
       size: image.size,
       file: image.file || null
     }));

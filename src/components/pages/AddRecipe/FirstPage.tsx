@@ -36,16 +36,15 @@ const RecipeDetailsPage: React.FC<{
 
     useEffect(() => {
         if (initialData) {
-          setTitle(initialData.title)
-          setDescription(initialData.description)
-          setCategory(initialData.category)
-          setCookingTime(initialData.cookingTime)
-          setDirections(initialData.directions)
-          setNutrition(initialData.nutrition)
-          setImages(initialData.images)
-          console.log(initialData)
+            setTitle(initialData.title)
+            setDescription(initialData.description)
+            setCategory(initialData.category)
+            setCookingTime(initialData.cookingTime)
+            setDirections(initialData.directions)
+            setNutrition(initialData.nutrition)
+            setImages(initialData.images)
         }
-      }, [initialData]);
+    }, [initialData]);
 
     const handleExit = () => {
         const isConfirmed = window.confirm('Are you sure you want to exit? Any unsaved changes will be lost.');
@@ -95,36 +94,36 @@ const RecipeDetailsPage: React.FC<{
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-          const files = Array.from(e.target.files);
-    
-          if (images.length + files.length > MAX_FILES) {
-            alert(`You can only upload up to ${MAX_FILES} images.`);
-            e.target.value = '';
-            return;
-          }
-    
-          const validFiles = files.filter((file) => {
-            if (file.size > MAX_FILE_SIZE) {
-              alert(`File "${file.name}" is too large. Maximum size is ${MAX_FILE_SIZE / 1e6}MB.`);
-              return false;
+            const files = Array.from(e.target.files);
+
+            if (images.length + files.length > MAX_FILES) {
+                alert(`You can only upload up to ${MAX_FILES} images.`);
+                e.target.value = '';
+                return;
             }
-            if (!file.type.startsWith('image/')) {
-              alert(`File "${file.name}" is not an image.`);
-              return false;
-            }
-            return true;
-          });
-    
-          const newImages = validFiles.map((file) => ({
-            fileName: '',
-            file,
-            url: URL.createObjectURL(file),
-            size: file.size,
-          }));
-    
-          setImages((prevImages) => [...prevImages, ...newImages]);
+
+            const validFiles = files.filter((file) => {
+                if (file.size > MAX_FILE_SIZE) {
+                    alert(`File "${file.name}" is too large. Maximum size is ${MAX_FILE_SIZE / 1e6}MB.`);
+                    return false;
+                }
+                if (!file.type.startsWith('image/')) {
+                    alert(`File "${file.name}" is not an image.`);
+                    return false;
+                }
+                return true;
+            });
+
+            const newImages = validFiles.map((file) => ({
+                fileName: '',
+                file,
+                url: URL.createObjectURL(file),
+                size: file.size,
+            }));
+
+            setImages((prevImages) => [...prevImages, ...newImages]);
         }
-      };
+    };
 
     const removeImage = (indexToRemove: number) => {
         setImages((prevImages) => prevImages.filter((_, index) => index !== indexToRemove));
@@ -142,8 +141,6 @@ const RecipeDetailsPage: React.FC<{
 
             <h1 className="text-3xl font-bold mb-6 text-gray-600">{addOrUpdate} Recipe Details</h1>
 
-            {/* Rest of your form JSX here, but change the submit button text to "Next" */}
-            {/* ... */}
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Title */}
                 <div>
@@ -217,12 +214,22 @@ const RecipeDetailsPage: React.FC<{
                                 <option value="piece">Piece</option>
                                 <option value="slice">Slice</option>
                             </select>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const newIngredients = ingredients.filter((_, i) => i !== index);
+                                    setIngredients(newIngredients);
+                                }}
+                                className="bg-red-500 text-white px-2 rounded"
+                            >
+                                X
+                            </button>
                         </div>
                     ))}
                     <button
                         type="button"
                         onClick={addIngredient}
-                        className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+                        className="bg-orange-500 hover:bg-orange-700 text-white px-4 py-2 rounded mt-2"
                     >
                         Add Ingredient
                     </button>
@@ -245,12 +252,27 @@ const RecipeDetailsPage: React.FC<{
                                 rows={2}
                                 required
                             />
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const newDirections = directions.filter((_, i) => i !== index);
+                                    // Update steps after removal
+                                    const updatedDirections = newDirections.map((dir, i) => ({
+                                        ...dir,
+                                        step: i + 1,
+                                    }));
+                                    setDirections(updatedDirections);
+                                }}
+                                className="bg-red-500 text-white px-2 rounded"
+                            >
+                                X
+                            </button>
                         </div>
                     ))}
                     <button
                         type="button"
                         onClick={addDirection}
-                        className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+                        className="bg-orange-500 hover:bg-orange-700 text-white px-4 py-2 rounded mt-2"
                     >
                         Add Step
                     </button>

@@ -1,8 +1,8 @@
-// components/ExploreRecipes.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
+import _ from 'lodash';
 import {
   Sheet,
   SheetContent,
@@ -40,7 +40,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
     limit: 10
   });
 
-  const fetchRecipes = async () => {
+  const fetchRecipes = _.debounce(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -66,7 +66,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, 500);
 
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
@@ -74,6 +74,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+
     setFilters(prev => ({ ...prev, page: 1 }));
   };
 
