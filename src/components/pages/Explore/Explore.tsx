@@ -37,6 +37,9 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
     cookingTime: 120,
     difficulty: 'all',
     page: 1,
+    featured: false,
+    popular: false,
+    latest: false,
     limit: 10
   });
 

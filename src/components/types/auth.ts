@@ -120,6 +120,9 @@ export type FilterState = {
   difficulty: string;
   page: number;
   limit: number;
+  featured: boolean,
+  popular: boolean,
+  latest: boolean
 };
 
 // Define the state type
