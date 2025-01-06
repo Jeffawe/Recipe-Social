@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Mail } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from "@/hooks/use-toast"
-import { DialogTitle } from '@radix-ui/react-dialog';
+import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 
 const AuthModal = () => {
   const { login, register, googleLogin, isLoading } = useAuth();
@@ -23,6 +23,16 @@ const AuthModal = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      if (!isLogin && formData.password.length < 6) {
+        toast({
+          title: "Error",
+          description: "Password must be at least 6 characters long.",
+          variant: "destructive",
+          duration: 3000
+        });
+        return;
+      }
+
       if (isLogin) {
         await login(formData.email, formData.password);
       } else {
@@ -33,7 +43,7 @@ const AuthModal = () => {
         title: isLogin ? "Welcome back!" : "Account created successfully!",
         duration: 3000
       });
-    } catch (error:any) {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
@@ -48,7 +58,7 @@ const AuthModal = () => {
       const auth = await google.accounts.oauth2.initTokenClient({
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
         scope: 'email profile',
-        callback: async (response:any) => {
+        callback: async (response: any) => {
           try {
             await googleLogin(response.access_token);
             setIsOpen(false);
@@ -93,6 +103,7 @@ const AuthModal = () => {
         onClick={(e) => e.stopPropagation()} // Prevent event bubbling
       >
         <DialogTitle className='text-black'>{isLogin ? 'Login' : 'Register'}</DialogTitle>
+        <DialogDescription></DialogDescription>
         <form onSubmit={handleSubmit} className="space-y-4" autoComplete={isLogin ? "on" : "off"} >
           {!isLogin && (
             <div className="space-y-2">
@@ -110,7 +121,7 @@ const AuthModal = () => {
               />
             </div>
           )}
-          
+
           <div className="space-y-2">
             <Label htmlFor="email" className='text-black'>Email</Label>
             <Input
@@ -126,7 +137,7 @@ const AuthModal = () => {
               autoComplete="email"
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="password" className='text-black'>Password</Label>
             <Input
@@ -141,12 +152,17 @@ const AuthModal = () => {
               disabled={isLoading}
               autoComplete={isLogin ? "current-password" : "new-password"}
             />
+            {formData.password && formData.password.length < 6 && (
+              <p className="text-sm text-red-500">
+                Password must be at least 7 characters long.
+              </p>
+            )}
           </div>
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="w-full"
-            disabled={isLoading}
+            disabled={isLoading || formData.password.length < 6}
           >
             {isLoading ? 'Loading...' : (isLogin ? 'Login' : 'Register')}
           </Button>
@@ -160,9 +176,9 @@ const AuthModal = () => {
             </div>
           </div>
 
-          <Button 
+          <Button
             type="button"
-            variant="outline" 
+            variant="outline"
             className="w-full text-black"
             onClick={handleGoogleSignIn}
             disabled={isLoading}

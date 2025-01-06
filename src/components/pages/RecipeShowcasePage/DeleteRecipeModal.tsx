@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/components/context/AuthContext';
 import {
   Dialog,
@@ -41,6 +41,10 @@ const DeleteRecipeModal: React.FC<DeleteModalProps> = ({
       setError('Failed to delete recipe');
     }
   };
+
+    useEffect(() => {
+      setUsername('')
+    }, []);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

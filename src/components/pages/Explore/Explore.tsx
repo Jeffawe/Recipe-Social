@@ -51,9 +51,13 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
       const params = new URLSearchParams({
         page: filters.page.toString(),
         limit: filters.limit.toString(),
+        ...(filters.featured == true && { featured: 'true' }),
+        ...(filters.popular && { popular: 'true' }),
+        ...(filters.latest && { latest: 'true' }),
         ...(filters.categories.length && { category: filters.categories[0] })
       });
 
+      console.log(params.toString())
       const response = await axios.get<RecipesResponse>(
         `${API_BASE_URL}/recipes?${params.toString()}`
       );
@@ -77,13 +81,20 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-
-    setFilters(prev => ({ ...prev, page: 1 }));
+    if(value == "featured"){
+      setFilters(prev => ({ ...prev, featured: true, popular: false, latest: false, page: 1 }));
+    }else if(value == "popular"){
+      setFilters(prev => ({ ...prev, featured: false, popular: true, latest: false, page: 1 }));
+    }else if(value == "latest"){
+      setFilters(prev => ({ ...prev, featured: false, popular: false, latest: true, page: 1 }));
+    }else{
+      setFilters(prev => ({ ...prev, featured: false, popular: false, latest: false, page: 1 }));
+    }
   };
 
   useEffect(() => {
     fetchRecipes();
-  }, [filters.page, filters.categories]);
+  }, [filters]);
 
   const Pagination = () => {
     if (pagination.totalPages <= 1) return null;

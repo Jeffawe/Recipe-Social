@@ -18,6 +18,7 @@ import { KeyRound, Mail, Trash2 } from 'lucide-react';
 import { useAuth } from '@/components/context/AuthContext';
 import ErrorToast from '@/components/ErrorToast';
 import DeleteRecipeModal from '@/components/pages/RecipeShowcasePage/DeleteRecipeModal';
+import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -26,7 +27,7 @@ const AccountSettings = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isToastOpen, setIsToastOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,25 +38,26 @@ const AccountSettings = () => {
 
   const handleDelete = async () => {
     try {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        setErrorMessage('Authorization token is missing');
+        setIsToastOpen(true);
+        return;
+      }
+
       // Make a DELETE request to the API
-      const response = await fetch(`${API_BASE_URL}/auth/${user?._id}`, {
-        method: 'DELETE',
+      const response: any = await axios.delete(`${API_BASE_URL}/auth/delete/${user?._id}`, {
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`, // Replace with your token management logic
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      // Check if the deletion was successful
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete user');
-      }
-
-      console.log('User deleted successfully!');
+      console.log('User deleted successfully:', response.data.message);
+    logout();
     } catch (error: any) {
-      console.error('Error deleting user:', error.message);
-      setErrorMessage(error)
+      console.error('Error deleting user:', error.response || error.message);
+      setErrorMessage(error.response?.data?.message || 'Failed to delete user');
       setIsToastOpen(true);
     }
   };
@@ -140,7 +142,10 @@ const AccountSettings = () => {
               account and remove all associated data from our servers.
             </AlertDescription>
           </Alert>
-          <Button variant="destructive" className="mt-4" onClick={handleDelete}>
+          <Button variant="destructive" className="mt-4" onClick={(e) => {
+            e.stopPropagation();
+            setIsDeleteModalOpen(true);
+          }}>
             Delete Account
           </Button>
         </CardContent>
