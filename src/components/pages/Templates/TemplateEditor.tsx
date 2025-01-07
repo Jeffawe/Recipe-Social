@@ -111,7 +111,7 @@ const TemplateEditor: React.FC = () => {
     try {
       const templateData = blocksToString(blocks);
       console.log(templateData)
-      const response = await saveTemplate(templateData, true);
+      await saveTemplate(templateData, true);
 
       if (isEditing) {
         setIsEditing(false);
@@ -154,7 +154,7 @@ const TemplateEditor: React.FC = () => {
               <div className="bg-white p-4 rounded-lg shadow">
                 <h2 className="text-lg font-semibold mb-4">Available Blocks</h2>
                 <Droppable droppableId="available" isDropDisabled={true}>
-                  {(provided, snapshot) => (
+                  {(provided) => (
                     <div
                       {...provided.droppableProps}
                       ref={provided.innerRef}
