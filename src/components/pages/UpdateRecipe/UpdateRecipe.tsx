@@ -22,11 +22,15 @@ const UpdateRecipe: React.FC = () => {
     const [step, setStep] = useState(() => {
         return Number(localStorage.getItem('recipeStep')) || 1;
     });
-    const [recipe, setRecipe] = useState<RecipeFormData | null>(null);
+    const [recipe, setRecipe] = useState<RecipeFormData | null>(() => {
+        const savedData = localStorage.getItem('recipeData');
+        return savedData ? JSON.parse(savedData) : null;
+    });
     const [isUploading, setIsUploading] = useState(false);
 
     const handleFirstStepComplete = (data: RecipeFormData) => {
         setRecipe(data);
+        localStorage.setItem('recipeData', JSON.stringify(data));
         localStorage.setItem('recipeStep', '2');
         setStep(2);
     };
@@ -45,7 +49,7 @@ const UpdateRecipe: React.FC = () => {
             const token = localStorage.getItem('token');
             const formData = new FormData();
 
-            const existingImagesArray : any = [];
+            const existingImagesArray: any = [];
             Object.entries(recipe).forEach(([key, value]) => {
                 if (key === 'images' && Array.isArray(value)) {
                     value.forEach((image: Image) => {
@@ -98,7 +102,8 @@ const UpdateRecipe: React.FC = () => {
                 },
             });
 
-            localStorage.setItem('recipeStep', '1');
+            localStorage.removeItem('recipeStep');
+            localStorage.removeItem('recipeData');
             navigate(`/recipe/${id}`);
         } catch (error: any) {
             if (error.response?.data?.message) {

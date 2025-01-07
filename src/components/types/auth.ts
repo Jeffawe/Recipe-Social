@@ -5,6 +5,7 @@ export interface User {
   bio: string;
   profilePicture?: string;
   createdAt: string;
+  createdRecipes: string[];
 }
 
 export type RecipeCategory = 'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack' | 'Appetizer' | 'Beverage';

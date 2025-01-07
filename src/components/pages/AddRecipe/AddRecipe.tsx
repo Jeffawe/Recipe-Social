@@ -9,13 +9,18 @@ import { useAuth } from '@/components/context/AuthContext';
 import ErrorToast from '@/components/ErrorToast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const MAX_RECIPE_LIMIT = import.meta.env.VITE_MAX_RECIPES || 5;
 
 const AddRecipe: React.FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(() => {
     return Number(localStorage.getItem('recipeStep')) || 1;
   });
-  const [recipeData, setrecipeData] = useState<RecipeFormData | null>(null);
+  const [recipeData, setrecipeData] = useState<RecipeFormData | null>(() => {
+    const savedData = localStorage.getItem('recipeData');
+    return savedData ? JSON.parse(savedData) : null;
+  });
+
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isToastOpen, setIsToastOpen] = useState(false);
@@ -24,6 +29,7 @@ const AddRecipe: React.FC = () => {
 
   const handleFirstStepComplete = (data: RecipeFormData) => {
     setrecipeData(data);
+    localStorage.setItem('recipeData', JSON.stringify(data));
     localStorage.setItem('recipeStep', '2');
     setStep(2);
   };
@@ -74,7 +80,8 @@ const AddRecipe: React.FC = () => {
 
       setRecipeData(createdRecipe);
 
-      localStorage.setItem('recipeStep', '1');
+      localStorage.removeItem('recipeStep');
+      localStorage.removeItem('recipeData');
       navigate(`/recipe/${response.data._id}`);
     } catch (error: any) {
       if (error.response?.data?.message) {
@@ -88,6 +95,47 @@ const AddRecipe: React.FC = () => {
     }
   };
 
+  if(!user){
+    return (
+      <div className="h-screen flex flex-col justify-center items-center">
+        <div className="text-center bg-white p-6 rounded-lg shadow-lg w-4/5 sm:w-1/2">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            You're not a User.
+          </h2>
+          <p className="text-sm text-gray-600 mb-6">
+            Don't know how you got here but you're not allowed to be here.
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            className="px-6 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Let's Head Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user?.createdRecipes || user?.createdRecipes.length >= MAX_RECIPE_LIMIT) {
+    return (
+      <div className="h-screen flex flex-col justify-center items-center">
+        <div className="text-center bg-white p-6 rounded-lg shadow-lg w-4/5 sm:w-1/2">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            You can't create more recipes at the moment.
+          </h2>
+          <p className="text-sm text-gray-600 mb-6">
+            Due to database cost limits, we are currently unable to allow more recipes to be added to the system on the free plan.
+          </p>
+          <button
+            onClick={() => navigate('/explore')}
+            className="px-6 py-2 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Explore recipes
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -1,8 +1,12 @@
 import { RecipeData } from "@/components/types/auth";
 
-interface BlockConfig {
+export interface BlockConfig {
     imageIndex?: number;
     content?: string;
+    className?: string[];
+    maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+    padding?: 'sm' | 'md' | 'lg';
+    alignment?: 'left' | 'center' | 'right';
     [key: string]: any;
 }
 
@@ -12,25 +16,50 @@ export interface Block {
     config: BlockConfig;
 }
 
+export interface ConfigPanelProps {
+    block: Block;
+    onConfigUpdate: (blockId: string, newConfig: BlockConfig) => void;
+    onClose: () => void;
+}
+
 export interface AvailableBlock {
     id: string;
     type: string;
     label: string;
 }
 
-export const blocksToString = (blocks: Block[]) => {
-    return blocks.map(block => block.type).join(',');
-}
+export const blocksToString = (blocks: Block[]): string => {
+    return JSON.stringify(blocks.map(block => ({
+        type: block.type,
+        config: block.config
+    })));
+};
 
-export const convertStringToBlockTypes = (blocksString: string): BLOCK_TYPES[] => {
-    // Remove any quotes and split
-    const cleanString = blocksString.replace(/['"]/g, '');
-    const blockTypes = cleanString.split(',');
-    
-    // Validate each block type exists in enum
-    return blockTypes.filter(type => 
-        Object.values(BLOCK_TYPES).includes(type as BLOCK_TYPES)
-    ) as BLOCK_TYPES[];
+
+export const convertStringToBlockTypes = (blocksString: string): Block[] => {
+    try {
+        console.log(blocksString);
+        const parsedBlocks = JSON.parse(JSON.parse(blocksString));
+        return parsedBlocks.map((block: { type: string; config: BlockConfig }) => ({
+            id: `${block.type}-${Date.now()}`, // Generate a new ID for each block
+            type: block.type,
+            config: block.config || {}
+        }));
+    } catch (error) {
+        try {
+            const cleanString = blocksString.replace(/['"]/g, '');
+            const blockTypes = cleanString.split(',');
+
+            return blockTypes.map((block) => ({
+                id: `${block}-${Date.now()}`,
+                type: block,
+                config: {}
+            }));
+        } catch (error) {
+            console.error('Error parsing blocks string:', error);
+            return [];
+        }
+    }
 };
 
 interface BlockComponentProps {
@@ -39,7 +68,7 @@ interface BlockComponentProps {
 }
 
 const RecipeTitle: React.FC<BlockComponentProps> = ({ data }) => (
-    <h1 className="text-3xl text-black font-bold mb-4">{data?.title || 'Recipe Title'}</h1>
+    <h1 className="text-3xl font-bold mb-4">{data?.title || 'Recipe Title'}</h1>
 );
 
 const RecipeDescription: React.FC<BlockComponentProps> = ({ data }) => (

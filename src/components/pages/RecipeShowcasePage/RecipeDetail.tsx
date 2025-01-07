@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useRecipe } from '@/components/context/RecipeDataContext';
 import { RecipeData } from '@/components/types/auth';
-import BLOCK_COMPONENTS, { BLOCK_TYPES, convertStringToBlockTypes } from '../Templates/ComponentBlocks';
+import BLOCK_COMPONENTS, { BLOCK_TYPES, convertStringToBlockTypes, Block } from '../Templates/ComponentBlocks';
 import { useAuth } from '@/components/context/AuthContext';
 import { Settings } from 'lucide-react';
 import {
@@ -23,7 +23,7 @@ const RecipePage: React.FC = () => {
   const { recipeData, setRecipeData } = useRecipe();
   const { isAuthenticated, user } = useAuth();
   const [recipe, setRecipe] = useState<RecipeData | null>(null);
-  const [template, setTemplate] = useState<BLOCK_TYPES[]>([]);
+  const [template, setTemplate] = useState<Block[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -156,11 +156,16 @@ const RecipePage: React.FC = () => {
           </DropdownMenu>
         </div>
 
-        {template.map((blockType, index) => {
-          const Component = BLOCK_COMPONENTS[blockType];
+        {template.map((block, index) => {
+          const Component = BLOCK_COMPONENTS[block.type as BLOCK_TYPES];
           return (
-            <div key={index} className="mb-6">
-              <Component data={recipe} />
+            <div key={index} className={`mb-6 
+                ${block.config?.className?.join(' ') || ''}
+                ${block.config?.maxWidth ? `max-w-${block.config.maxWidth}` : ''}
+                ${block.config?.padding ? `p-${block.config.padding}` : ''}
+                ${block.config?.alignment ? `text-${block.config.alignment}` : ''}`}
+              >
+              <Component data={recipe} config={block.config} />
             </div>
           );
         })}

@@ -2,7 +2,7 @@
 export default {
     darkMode: ["class"],
     content: [
-    "./src/**/*.{html,js,jsx,ts,tsx}", // Add all files where Tailwind classes will be used
+    "./src/**/*.{html,js,jsx,ts,tsx}",
   ],
   theme: {
   	extend: {

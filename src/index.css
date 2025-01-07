@@ -17,6 +17,63 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+  color: black;
+}
+
+input {
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+input::placeholder {
+  color: gray;
+  opacity: 1;
+}
+
+textarea {
+  background-color: white; /* Sets the background color to white */
+  color: black; /* Sets the text color to black */
+  border: 1px solid #ccc; /* Adds a light gray border */
+  padding: 8px; /* Adds some padding for better usability */
+  font-size: 16px; /* Sets the font size */
+  font-family: Arial, sans-serif; /* Specifies the font family */
+  border-radius: 4px; /* Adds slightly rounded corners */
+  outline: none; /* Removes the default focus outline */
+  resize: vertical; /* Allows vertical resizing only */
+}
+
+textarea:focus {
+  border-color: #007BFF; /* Changes the border color when focused */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5); /* Adds a focus shadow */
+}
+
+select {
+  background-color: white;
+  color: black; 
+  border: 1px solid #ccc; 
+  padding: 10px; 
+  border-radius: 5px; 
+  appearance: none; 
+  cursor: pointer;
+}
+
+select:focus {
+  outline: 2px solid black;
+}
+
+select option[disabled] {
+  color: gray;
+}
+
+option {
+  background-color: white;
+  color: black;
+}
+
 a {
   font-weight: 500;
   color: #646cff;

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, {useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Plus } from 'lucide-react';
 import { useRecipe } from '@/components/context/RecipeDataContext';
 import { RecipeFormData, Template } from '@/components/types/auth';
-import BLOCK_COMPONENTS, { convertStringToBlockTypes } from '../Templates/ComponentBlocks';
+import BLOCK_COMPONENTS, { BLOCK_TYPES, convertStringToBlockTypes } from '../Templates/ComponentBlocks';
 import { useAuth } from '@/components/context/AuthContext';
 import { convertToRecipeData } from '@/components/helperFunctions/helperFunctions';
 
@@ -44,7 +44,7 @@ const TemplateSelectionPage: React.FC<{
                 axios.get<TemplateResponse>(`${API_BASE_URL}/templates/public`, {
                     headers: { Authorization: `Bearer ${token}` }
                 }),
-                axios.get<TemplateResponse>(`${API_BASE_URL}/templates/user/templates`, {
+                axios.get<TemplateResponse>(`${API_BASE_URL}/templates/user/${user?._id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 })
             ]);
@@ -84,13 +84,13 @@ const TemplateSelectionPage: React.FC<{
 
     const convertToPreview = ({ blocksString, data, className = '' }: ConvertToPreviewProps) => {
         if (!user) return
-        const blockTypes = convertStringToBlockTypes(blocksString)// Convert the string back to an array of block types
+        const blockTypes = convertStringToBlockTypes(blocksString)
+        console.log(blockTypes)
         const convertedData = convertToRecipeData(data, user!)
         return (
-            <div className={`flex flex-col gap-4${className}`}>
-                {blockTypes.map((blockType, index) => {
-                    const BlockComponent = BLOCK_COMPONENTS[blockType]; // Get the component based on type
-
+            <div className={`flex flex-col gap-4 ${className}`}>
+                {blockTypes.map((block, index) => {
+                    const BlockComponent = BLOCK_COMPONENTS[block.type as BLOCK_TYPES]
                     if (!BlockComponent) {
                         return (
                             <div key={index} className="text-gray-500 italic">
@@ -98,11 +98,16 @@ const TemplateSelectionPage: React.FC<{
                             </div>
                         );
                     }
-
-                    // Render each block with a simplified preview
                     return (
                         <div key={index} className="block-preview p-3 border border-gray-300 rounded-lg shadow-sm bg-white">
-                            <BlockComponent data={convertedData} config={{}} />
+                            <div key={index} className={`mb-6 
+                                ${block.config?.className?.join(' ') || ''}
+                                ${block.config?.maxWidth ? `max-w-${block.config.maxWidth}` : ''}
+                                ${block.config?.padding ? `p-${block.config.padding}` : ''}
+                                ${block.config?.alignment ? `text-${block.config.alignment}` : ''}`}
+                            >
+                                <BlockComponent data={convertedData} config={block.config} />
+                            </div>
                         </div>
                     );
                 })}
@@ -161,7 +166,6 @@ const TemplateSelectionPage: React.FC<{
                             data: recipeData,                 // recipeData is the data to fill the blocks
                             className: 'max-w-md mx-auto',
                         })}
-                        <h3 className="font-semibold text-lg mb-2">{'template' + template._id}</h3>
                     </div>
                 ))}
             </div>

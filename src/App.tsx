@@ -14,6 +14,7 @@ import HelpSupport from './components/account/Settings Options/HelpAndOptions';
 import CookingPreferences from './components/account/Settings Options/CookingPreferences';
 import ProfilePage from './components/account/Profile';
 import UpdateRecipe from './components/pages/UpdateRecipe/UpdateRecipe';
+import SearchPage from './components/pages/SearchPage/SearchPage';
 
 const App: React.FC = () => {
   return (
@@ -25,6 +26,7 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/explore" element={<Explore />} />
+              <Route path="/advanced-search" element={<SearchPage />} />
               <Route
                 path="/add-recipe"
                 element={

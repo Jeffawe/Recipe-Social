@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { X, GripVertical } from 'lucide-react';
-import BLOCK_COMPONENTS, { AvailableBlock, Block, BLOCK_TYPES, blocksToString } from './ComponentBlocks';
+import { X, GripVertical, Settings } from 'lucide-react';
+import BLOCK_COMPONENTS, { AvailableBlock, Block, BLOCK_TYPES, BlockConfig, blocksToString } from './ComponentBlocks';
 import { useRecipe } from '@/components/context/RecipeDataContext';
 import axios from 'axios';
+import BlockConfigPanel from './ConfigBlock';
+import HelpModal from './HelpBlock';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const TemplateEditor: React.FC = () => {
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [selectedBlock, setSelectedBlock] = useState<Block | null>(null);
   const [availableBlocks] = useState<AvailableBlock[]>([
     { id: 'title', type: BLOCK_TYPES.TITLE, label: 'Title' },
     { id: 'description', type: BLOCK_TYPES.DESCRIPTION, label: 'Description' },
@@ -28,13 +30,18 @@ const TemplateEditor: React.FC = () => {
   const navigate = useNavigate();
   const { isEditing, recipeData, setIsEditing } = useRecipe();
 
-  const editor = useEditor({
-    extensions: [StarterKit],
-    content: '',
-  });
-
   const handleDragStart = () => {
     setIsDragging(true);
+  };
+
+  const handleConfigUpdate = (blockId: string, newConfig: BlockConfig) => {
+    setBlocks(prevBlocks =>
+      prevBlocks.map(block =>
+        block.id === blockId
+          ? { ...block, config: newConfig }
+          : block
+      )
+    );
   };
 
   const handleDragEnd = (result: DropResult) => {
@@ -106,8 +113,6 @@ const TemplateEditor: React.FC = () => {
       console.log(templateData)
       const response = await saveTemplate(templateData, true);
 
-      //const templateId = response.template;
-
       if (isEditing) {
         setIsEditing(false);
         navigate('/add-recipe');
@@ -125,6 +130,13 @@ const TemplateEditor: React.FC = () => {
       <div className="container mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl text-black font-bold">Template Editor</h1>
+          <button
+            onClick={() => setIsHelpModalOpen(true)}
+            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full"
+            title="Help"
+          >
+            ?
+          </button>
           <button
             onClick={handleSave}
             className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
@@ -214,19 +226,42 @@ const TemplateEditor: React.FC = () => {
                                 <GripVertical size={16} className="text-gray-400" />
                               </div>
                               <div className="border border-gray-200 rounded p-4 relative">
-                                <button
-                                  onClick={() => removeBlock(index)}
-                                  className="absolute top-2 right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <X size={16} />
-                                </button>
-                                <Component data={recipeData || undefined} />
+                                <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <button
+                                    onClick={() => setSelectedBlock(block)}
+                                    className="text-gray-400 hover:text-orange-500"
+                                  >
+                                    <Settings size={16} />
+                                  </button>
+                                  <button
+                                    onClick={() => removeBlock(index)}
+                                    className="text-gray-400 hover:text-red-500"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                </div>
+                                <div className={`
+                                  ${block.config?.className?.join(' ') || ' '}
+                                  ${block.config?.maxWidth ? `max-w-${block.config.maxWidth}` : ''}
+                                  ${block.config?.padding ? `p-${block.config.padding}` : ''}
+                                  ${block.config?.alignment ? `text-${block.config.alignment}` : ''}
+                                `}>
+                                  <Component data={recipeData || undefined} config={block.config} />
+                                </div>
                               </div>
                             </div>
                           )}
                         </Draggable>
                       );
                     })}
+                    {/* Add the config panel */}
+                    {selectedBlock && (
+                      <BlockConfigPanel
+                        block={selectedBlock}
+                        onConfigUpdate={handleConfigUpdate}
+                        onClose={() => setSelectedBlock(null)}
+                      />
+                    )}
                     {provided.placeholder}
                   </div>
                 )}
@@ -235,6 +270,12 @@ const TemplateEditor: React.FC = () => {
           </div>
         </DragDropContext>
       </div>
+      {isHelpModalOpen &&
+        <HelpModal
+          isOpen={isHelpModalOpen}
+          onClose={() => setIsHelpModalOpen(false)}
+        />
+      }
     </div>
   );
 };
