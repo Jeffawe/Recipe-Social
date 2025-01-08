@@ -34,6 +34,24 @@ const RecipeDetailsPage: React.FC<{
     });
     const [category, setCategory] = useState(initialData?.category || 'Dinner');
 
+    const [validationMessages, setValidationMessages] = useState({
+        title: '',
+        description: '',
+        ingredients: '',
+        directions: '',
+    });
+
+    // Define limits
+    const LIMITS = {
+        TITLE_MAX_LENGTH: 100,
+        DESCRIPTION_MAX_LENGTH: 500,
+        MAX_INGREDIENTS: 30,
+        INGREDIENT_NAME_MAX_LENGTH: 50,
+        DIRECTION_MAX_LENGTH: 1000,
+        MAX_DIRECTIONS: 20,
+        QUANTITY_MAX_LENGTH: 10
+    };
+
     useEffect(() => {
         if (initialData) {
             setTitle(initialData.title)
@@ -84,12 +102,72 @@ const RecipeDetailsPage: React.FC<{
         });
     };
 
+    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.value;
+        if (newValue.length <= LIMITS.TITLE_MAX_LENGTH) {
+            setTitle(newValue);
+            setValidationMessages(prev => ({ ...prev, title: '' }));
+        } else {
+            setValidationMessages(prev => ({
+                ...prev,
+                title: `Title cannot exceed ${LIMITS.TITLE_MAX_LENGTH} characters`
+            }));
+        }
+    };
+
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const newValue = e.target.value;
+        if (newValue.length <= LIMITS.DESCRIPTION_MAX_LENGTH) {
+            setDescription(newValue);
+            setValidationMessages(prev => ({ ...prev, description: '' }));
+        } else {
+            setValidationMessages(prev => ({
+                ...prev,
+                description: `Description cannot exceed ${LIMITS.DESCRIPTION_MAX_LENGTH} characters`
+            }));
+        }
+    };
+
     const addIngredient = () => {
+        if (ingredients.length >= LIMITS.MAX_INGREDIENTS) {
+            setValidationMessages(prev => ({
+                ...prev,
+                ingredients: `Maximum ${LIMITS.MAX_INGREDIENTS} ingredients allowed`
+            }));
+            return;
+        }
         setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
+        setValidationMessages(prev => ({ ...prev, ingredients: '' }));
     };
 
     const addDirection = () => {
+        if (directions.length >= LIMITS.MAX_DIRECTIONS) {
+            setValidationMessages(prev => ({
+                ...prev,
+                directions: `Maximum ${LIMITS.MAX_DIRECTIONS} steps allowed`
+            }));
+            return;
+        }
         setDirections([...directions, { step: directions.length + 1, instruction: '' }]);
+        setValidationMessages(prev => ({ ...prev, directions: '' }));
+    };
+
+    const handleIngredientNameChange = (index: number, value: string) => {
+        if (value.length <= LIMITS.INGREDIENT_NAME_MAX_LENGTH) {
+            const newIngredients = [...ingredients];
+            newIngredients[index].name = value;
+            setIngredients(newIngredients);
+            setValidationMessages(prev => ({ ...prev, ingredients: '' }));
+        }
+    };
+
+    const handleDirectionChange = (index: number, value: string) => {
+        if (value.length <= LIMITS.DIRECTION_MAX_LENGTH) {
+            const newDirections = [...directions];
+            newDirections[index].instruction = value;
+            setDirections(newDirections);
+            setValidationMessages(prev => ({ ...prev, directions: '' }));
+        }
     };
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,10 +226,19 @@ const RecipeDetailsPage: React.FC<{
                     <input
                         type="text"
                         value={title}
-                        onChange={(e) => setTitle(e.target.value)}
+                        onChange={handleTitleChange}
                         className="w-full p-2 border rounded"
                         required
+                        maxLength={LIMITS.TITLE_MAX_LENGTH}
                     />
+                    <div className="flex justify-between mt-1">
+                        <span className="text-sm text-gray-500">
+                            {title.length}/{LIMITS.TITLE_MAX_LENGTH} characters
+                        </span>
+                        {validationMessages.title && (
+                            <span className="text-sm text-red-500">{validationMessages.title}</span>
+                        )}
+                    </div>
                 </div>
 
                 {/* Description */}
@@ -159,28 +246,39 @@ const RecipeDetailsPage: React.FC<{
                     <label className="block mb-2 text-gray-600">Description</label>
                     <textarea
                         value={description}
-                        onChange={(e) => setDescription(e.target.value)}
+                        onChange={handleDescriptionChange}
                         className="w-full p-2 border rounded"
                         rows={4}
+                        maxLength={LIMITS.DESCRIPTION_MAX_LENGTH}
                     />
+                    <div className="flex justify-between mt-1">
+                        <span className="text-sm text-gray-500">
+                            {description.length}/{LIMITS.DESCRIPTION_MAX_LENGTH} characters
+                        </span>
+                        {validationMessages.description && (
+                            <span className="text-sm text-red-500">{validationMessages.description}</span>
+                        )}
+                    </div>
                 </div>
 
                 {/* Ingredients Section */}
                 <div>
-                    <h2 className="text-2xl font-semibold mb-4 text-gray-600">Ingredients</h2>
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-2xl font-semibold mb-4 text-gray-600">Ingredients</h2>
+                        <span className="text-sm text-gray-500">
+                            {ingredients.length}/{LIMITS.MAX_INGREDIENTS} ingredients
+                        </span>
+                    </div>
                     {ingredients.map((ingredient, index) => (
                         <div key={index} className="flex space-x-2 mb-2">
                             <input
                                 type="text"
                                 placeholder="Ingredient Name"
                                 value={ingredient.name}
-                                onChange={(e) => {
-                                    const newIngredients = [...ingredients];
-                                    newIngredients[index].name = e.target.value;
-                                    setIngredients(newIngredients);
-                                }}
+                                onChange={(e) => handleIngredientNameChange(index, e.target.value)}
                                 className="flex-1 p-2 border rounded"
                                 required
+                                maxLength={LIMITS.INGREDIENT_NAME_MAX_LENGTH}
                             />
                             <input
                                 type="number"
@@ -193,6 +291,7 @@ const RecipeDetailsPage: React.FC<{
                                 }}
                                 className="w-24 p-2 border rounded"
                                 required
+                                maxLength={LIMITS.QUANTITY_MAX_LENGTH}
                             />
                             <select
                                 value={ingredient.unit}
@@ -226,10 +325,17 @@ const RecipeDetailsPage: React.FC<{
                             </button>
                         </div>
                     ))}
+                    {validationMessages.ingredients && (
+                        <span className="text-sm text-red-500 block mt-1">
+                            {validationMessages.ingredients}
+                        </span>
+                    )}
                     <button
                         type="button"
                         onClick={addIngredient}
-                        className="bg-orange-500 hover:bg-orange-700 text-white px-4 py-2 rounded mt-2"
+                        disabled={ingredients.length >= LIMITS.MAX_INGREDIENTS}
+                        className={`bg-orange-500 hover:bg-orange-700 text-white px-4 py-2 rounded mt-2
+                            ${ingredients.length >= LIMITS.MAX_INGREDIENTS ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         Add Ingredient
                     </button>
@@ -237,20 +343,22 @@ const RecipeDetailsPage: React.FC<{
 
                 {/* Directions Section */}
                 <div>
-                    <h2 className="text-2xl font-semibold mb-4 text-gray-600">Directions</h2>
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-2xl font-semibold mb-4 text-gray-600">Directions</h2>
+                        <span className="text-sm text-gray-500">
+                            {directions.length}/{LIMITS.MAX_DIRECTIONS} steps
+                        </span>
+                    </div>
                     {directions.map((direction, index) => (
                         <div key={index} className="flex items-center space-x-2 mb-2">
                             <span className="font-bold">{direction.step}.</span>
                             <textarea
                                 value={direction.instruction}
-                                onChange={(e) => {
-                                    const newDirections = [...directions];
-                                    newDirections[index].instruction = e.target.value;
-                                    setDirections(newDirections);
-                                }}
+                                onChange={(e) => handleDirectionChange(index, e.target.value)}
                                 className="flex-1 p-2 border rounded"
                                 rows={2}
                                 required
+                                maxLength={LIMITS.DIRECTION_MAX_LENGTH}
                             />
                             <button
                                 type="button"
@@ -269,10 +377,17 @@ const RecipeDetailsPage: React.FC<{
                             </button>
                         </div>
                     ))}
+                    {validationMessages.directions && (
+                        <span className="text-sm text-red-500 block mt-1">
+                            {validationMessages.directions}
+                        </span>
+                    )}
                     <button
                         type="button"
                         onClick={addDirection}
-                        className="bg-orange-500 hover:bg-orange-700 text-white px-4 py-2 rounded mt-2"
+                        disabled={directions.length >= LIMITS.MAX_DIRECTIONS}
+                        className={`bg-orange-500 hover:bg-orange-700 text-white px-4 py-2 rounded mt-2
+                            ${directions.length >= LIMITS.MAX_DIRECTIONS ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         Add Step
                     </button>

@@ -131,7 +131,7 @@ const AccountSettings = () => {
             Delete Account
           </CardTitle>
           <CardDescription>
-            Permanently delete your account and all associated data
+            Permanently delete your account.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -139,7 +139,7 @@ const AccountSettings = () => {
             <AlertTitle>Warning</AlertTitle>
             <AlertDescription>
               This action cannot be undone. This will permanently delete your
-              account and remove all associated data from our servers.
+              account.
             </AlertDescription>
           </Alert>
           <Button variant="destructive" className="mt-4" onClick={(e) => {
