@@ -5,6 +5,7 @@ import { Bookmark, ChefHat } from 'lucide-react';
 import { RecipeData } from '../types/auth';
 import RecipeCard from '../pages/Explore/RecipeCard';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -25,9 +26,13 @@ const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
     const fetchRecipes = async (type: 'created' | 'saved') => {
         try {
             setIsLoading(true);
-            const response = await fetch(`${API_BASE_URL}/auth/${userId}/recipes/${type}`);
-            if (!response.ok) throw new Error(`Failed to fetch ${type} recipes`);
-            const data = await response.json();
+            const response:any = await axios.get(`${API_BASE_URL}/auth/${userId}/recipes/${type}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`, // Add your token from localStorage or wherever it's stored
+                }
+            });
+
+            const data = response.data;
             if (type === 'created') {
                 setCreatedRecipes(
                     data.map((item: RecipeData) => ({

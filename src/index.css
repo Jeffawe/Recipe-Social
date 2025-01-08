@@ -47,7 +47,7 @@ textarea {
 }
 
 textarea:focus {
-  border-color: #007BFF; /* Changes the border color when focused */
+  border-color: orange; /* Changes the border color when focused */
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.5); /* Adds a focus shadow */
 }
 

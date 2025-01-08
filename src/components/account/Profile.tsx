@@ -19,7 +19,7 @@ const ProfilePage: React.FC = () => {
     const fetchUserProfile = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch(`${API_BASE_URL}/auth/${id}`);
+            const response = await fetch(`${API_BASE_URL}/auth/get/${id}`);
             if (!response.ok) throw new Error('Failed to fetch user profile');
             const data = await response.json();
             setProfile(data);
