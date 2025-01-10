@@ -1,50 +1,38 @@
-# React + TypeScript + Vite
+# Recipe Social Frontend  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Welcome to the frontend of **Recipe Social**, a recipe-sharing community app where users can create, read, update, and delete recipes. This project is built using **React** and **TypeScript** to provide a seamless and interactive user experience.  
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features  
+- **CRUD Recipes**: Users can create, view, edit, and delete their favorite recipes.  
+- **Responsive Design**: Optimized for both desktop and mobile devices.  
+- **Interactive UI**: A user-friendly interface for browsing and managing recipes.  
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Tech Stack  
+- **Frontend Framework**: React  
+- **Language**: TypeScript  
+- **Styling**: CSS Modules / TailwindCSS (if applicable, specify which one you're using)  
+- **State Management**: React Context / Redux (if applicable)  
 
-- Configure the top-level `parserOptions` property like this:
+---
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Backend Repository  
+This project connects to a **Node.js/Express backend** with MongoDB for data storage. You can find the backend repository [here](https://github.com/YourUsername/recipe-social-backend).  
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+---
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## Deployment  
+This frontend is deployed on **Vercel**. Check out the live site [here](#) (add your live site URL).  
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+---
+
+## Contributions  
+Contributions are welcome! Please feel free to fork the repository and submit a pull request.  
+
+---
+
+## License  
+This project is licensed under the **[MIT License](LICENSE)**.   
