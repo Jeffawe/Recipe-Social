@@ -14,18 +14,18 @@ Welcome to the frontend of **Recipe Social**, a recipe-sharing community app whe
 ## Tech Stack  
 - **Frontend Framework**: React  
 - **Language**: TypeScript  
-- **Styling**: CSS Modules / TailwindCSS (if applicable, specify which one you're using)  
-- **State Management**: React Context / Redux (if applicable)  
+- **Styling**: TailwindCSS
+- **State Management**: React Context 
 
 ---
 
 ## Backend Repository  
-This project connects to a **Node.js/Express backend** with MongoDB for data storage. You can find the backend repository [here](https://github.com/YourUsername/recipe-social-backend).  
+This project connects to a **Node.js/Express backend** with MongoDB for data storage. You can find the backend repository [here](https://github.com/Jeffawe/Recipe-Social-Backend).  
 
 ---
 
 ## Deployment  
-This frontend is deployed on **Vercel**. Check out the live site [here](#) (add your live site URL).  
+This frontend is deployed on **Vercel**. Check out the live site [here](#).  
 
 ---
 
