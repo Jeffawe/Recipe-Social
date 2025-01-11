@@ -21,6 +21,7 @@ import DeleteRecipeModal from '@/components/pages/RecipeShowcasePage/DeleteRecip
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 const AccountSettings = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,6 +51,7 @@ const AccountSettings = () => {
       const response: any = await axios.delete(`${API_BASE_URL}/auth/delete/${user?._id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
+          'api-key': API_KEY,
         },
       });
 

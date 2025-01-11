@@ -16,6 +16,7 @@ import RecipeCard from './RecipeCard.js';
 import FilterSidebar from './FilterSidebar.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 interface ExploreRecipesProps {
   isMinimal?: boolean;
@@ -59,7 +60,13 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
 
       console.log(params.toString())
       const response = await axios.get<RecipesResponse>(
-        `${API_BASE_URL}/recipes?${params.toString()}`
+        `${API_BASE_URL}/recipes?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'api-key': API_KEY,
+          }
+        }
       );
 
       setRecipes(response.data.recipes);
@@ -81,13 +88,13 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    if(value == "featured"){
+    if (value == "featured") {
       setFilters(prev => ({ ...prev, featured: true, popular: false, latest: false, page: 1 }));
-    }else if(value == "popular"){
+    } else if (value == "popular") {
       setFilters(prev => ({ ...prev, featured: false, popular: true, latest: false, page: 1 }));
-    }else if(value == "latest"){
+    } else if (value == "latest") {
       setFilters(prev => ({ ...prev, featured: false, popular: false, latest: true, page: 1 }));
-    }else{
+    } else {
       setFilters(prev => ({ ...prev, featured: false, popular: false, latest: false, page: 1 }));
     }
   };
@@ -121,7 +128,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
         >
           Previous
         </Button>
-        
+
         {pageNumbers.map((page, index) => (
           <React.Fragment key={index}>
             {page === '...' ? (
@@ -166,7 +173,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
               <RecipeCard key={recipe._id} recipe={recipe} />
             ))}
           </div>
-          
+
           {recipes.length === 0 && (
             <div className="text-center text-gray-500 py-12">
               No recipes found matching your criteria
@@ -196,8 +203,8 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
           {/* Filter Toggle */}
           <div className="flex justify-end">
             {isMinimal ? (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className='text-black'
                 size="sm"
                 onClick={() => navigate('/explore')}
@@ -206,8 +213,8 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
                 Advanced Filters
               </Button>
             ) : (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 className='text-black'
                 onClick={() => setIsSidebarVisible(!isSidebarVisible)}
@@ -224,7 +231,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
             {/* Sidebar */}
             {!isMinimal && isSidebarVisible && (
               <div className="w-64 shrink-0">
-                <FilterSidebar 
+                <FilterSidebar
                   filters={filters}
                   onFilterChange={handleFilterChange}
                 />
@@ -238,7 +245,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
                   <SheetHeader>
                     <SheetTitle>Filter Recipes</SheetTitle>
                   </SheetHeader>
-                  <FilterSidebar 
+                  <FilterSidebar
                     filters={filters}
                     onFilterChange={handleFilterChange}
                   />

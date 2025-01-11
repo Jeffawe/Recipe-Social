@@ -5,7 +5,7 @@ interface FooterProps {
 }
 
 const Footer: React.FC<FooterProps> = ({ 
-  appName = 'Recipe Social' // Default value if not provided
+  appName = 'Recipe Social'
 }) => {
   const currentYear = new Date().getFullYear();
 

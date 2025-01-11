@@ -16,6 +16,7 @@ import DeleteRecipeModal from './DeleteRecipeModal';
 import { ReportRecipeModal } from './ReportRecipeModal';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
 const DEFAULT_TEMPLATE = import.meta.env.VITE_DEFAULT_TEMPLATE;
 
 const RecipePage: React.FC = () => {
@@ -44,15 +45,17 @@ const RecipePage: React.FC = () => {
       }
 
       // Check the loggedIn state to decide whether to include the Authorization header
-      const headers = isAuthenticated
-        ? { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        : undefined;
-
-      // Fetch recipe data from the API
-      const { data: recipeResponse } = await axios.get<RecipeData>(
-        `${API_BASE_URL}/recipes/${id}`,
-        { headers }
-      );
+      const headers = isAuthenticated && localStorage.getItem('token')
+      ? { 
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'api-key': API_KEY
+        }
+      : { 'api-key': API_KEY };
+    
+    const { data: recipeResponse } = await axios.get<RecipeData>(
+      `${API_BASE_URL}/recipes/${id}`,
+      { headers }
+    );
 
       if (!recipeResponse.templateString) {
         setRecipe(recipeResponse);

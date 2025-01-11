@@ -6,8 +6,10 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { User } from '../types/auth';
 import ProfileAvatar from './ProfileAvatar';
+import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 const ProfilePage: React.FC = () => {
     const { id } = useParams();
@@ -18,11 +20,19 @@ const ProfilePage: React.FC = () => {
 
     const fetchUserProfile = async () => {
         try {
+            if (id === user?._id) {
+                setProfile(user)
+                return;
+            }
             setIsLoading(true);
-            const response = await fetch(`${API_BASE_URL}/auth/get/${id}`);
-            if (!response.ok) throw new Error('Failed to fetch user profile');
-            const data = await response.json();
-            setProfile(data);
+            const response = await axios.get<User>(`${API_BASE_URL}/auth/get/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    'api-key': API_KEY,
+                },
+            });
+
+            setProfile(response.data);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
@@ -64,8 +74,8 @@ const ProfilePage: React.FC = () => {
                     {/* Profile Picture */}
                     <div className="relative">
                         <ProfileAvatar
-                            imageUrl={user?.profilePicture}
-                            name={user?.username || 'User'}
+                            imageUrl={profile?.profilePicture}
+                            name={profile?.username || 'User'}
                             size="lg"
                         />
                     </div>

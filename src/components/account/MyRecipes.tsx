@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 interface MyRecipesProps {
     userId: string;
@@ -28,7 +29,8 @@ const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
             setIsLoading(true);
             const response:any = await axios.get(`${API_BASE_URL}/auth/${userId}/recipes/${type}`, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`, // Add your token from localStorage or wherever it's stored
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    'api-key': API_KEY,
                 }
             });
 

@@ -9,6 +9,7 @@ import BlockConfigPanel from './ConfigBlock';
 import HelpModal from './HelpBlock';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 const TemplateEditor: React.FC = () => {
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -86,7 +87,8 @@ const TemplateEditor: React.FC = () => {
         url: `${API_BASE_URL}/templates/save`,
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'api-key': API_KEY
         },
         data: {
           template,

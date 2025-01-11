@@ -14,8 +14,11 @@ import { Camera, Link as LinkIcon } from 'lucide-react';
 import { useAuth } from '@/components/context/AuthContext';
 import ProfileAvatar from '../ProfileAvatar';
 import ErrorToast from '@/components/ErrorToast';
+import axios from 'axios';
+import { User } from '@/components/types/auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 const ProfileSettings = () => {
   const { user, setUser } = useAuth();
@@ -44,25 +47,23 @@ const ProfileSettings = () => {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/${user?._id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
-      }
-
-      const updatedUser = await response.json();
-
+      const response = await axios.patch<User>(
+        `${API_BASE_URL}/auth/${user?._id}`,
+        updatedData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'api-key': API_KEY,
+          },
+        }
+      );
+  
+      // If the request was successful
+      const updatedUser = response.data;
       setUser(updatedUser);
-
     } catch (error: any) {
-      setError(error.message);
+      setError(error.response?.data?.message || error.message);
     } finally {
       setIsSubmitting(false);
       setIsToastOpen(true);

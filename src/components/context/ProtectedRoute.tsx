@@ -3,14 +3,13 @@ import { useAuth } from './AuthContext';
 import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
-    children: ReactNode; // Define the type for children
+    children: ReactNode;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const { user } = useAuth();
 
     if (!user) {
-        // Instead of redirecting to /login, we show the AuthModal
         return <Navigate to="/" replace />;
     }
 

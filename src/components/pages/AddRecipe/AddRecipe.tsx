@@ -10,6 +10,7 @@ import ErrorToast from '@/components/ErrorToast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const MAX_RECIPE_LIMIT = import.meta.env.VITE_MAX_RECIPES || 5;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 const AddRecipe: React.FC = () => {
   const navigate = useNavigate();
@@ -73,6 +74,7 @@ const AddRecipe: React.FC = () => {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
+          'api-key': API_KEY
         },
       });
 

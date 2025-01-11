@@ -11,7 +11,7 @@ export const convertToRecipeData = (formData: RecipeFormData, user: User): Recip
     }));
   
     return {
-      _id: 'temp-' + Date.now(), // Temporary ID until saved in the database
+      _id: 'temp-' + Date.now(),
       title: formData.title,
       description: formData.description,
       ingredients: formData.ingredients,

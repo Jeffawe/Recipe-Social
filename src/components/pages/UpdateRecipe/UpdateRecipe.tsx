@@ -10,6 +10,7 @@ import axios from 'axios';
 import { convertToRecipeFormData } from '@/components/helperFunctions/helperFunctions';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 const UpdateRecipe: React.FC = () => {
     const { id } = useParams();
@@ -99,6 +100,7 @@ const UpdateRecipe: React.FC = () => {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`,
+                    'api-key': API_KEY
                 },
             });
 
@@ -126,12 +128,13 @@ const UpdateRecipe: React.FC = () => {
                 return;
             }
 
-            // Check the loggedIn state to decide whether to include the Authorization header
-            const headers = isAuthenticated
-                ? { Authorization: `Bearer ${localStorage.getItem('token')}` }
-                : undefined;
+            const headers = isAuthenticated && localStorage.getItem('token')
+                ? {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    'api-key': API_KEY // Add the API key here
+                }
+                : { 'api-key': API_KEY }; // If not authenticated, still include the API key
 
-            // Fetch recipe data from the API
             const { data: recipeResponse } = await axios.get<RecipeData>(
                 `${API_BASE_URL}/recipes/${id}`,
                 { headers }

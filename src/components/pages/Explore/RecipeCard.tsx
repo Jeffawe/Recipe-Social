@@ -17,13 +17,14 @@ interface RecipeCardProps {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     const navigate = useNavigate();
     const { user, isAuthenticated } = useAuth();
     const [isLiked, setIsLiked] = useState(recipe.likes?.includes(user?._id || ''));
     const [likesCount, setLikesCount] = useState(recipe.likes?.length || 0);
-    const [isSaved, setIsSaved] = useState(false);
+    const [isSaved, setIsSaved] = useState(user?.createdAt.includes(recipe._id || ''));
 
     const {
         _id,
@@ -48,7 +49,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                 {},
                 {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        'api-key': API_KEY
                     }
                 }
             );
@@ -74,7 +76,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                 {},
                 {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        'api-key': API_KEY
                     }
                 }
             );

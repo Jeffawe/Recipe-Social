@@ -9,6 +9,7 @@ import { useAuth } from '@/components/context/AuthContext';
 import { convertToRecipeData } from '@/components/helperFunctions/helperFunctions';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 interface ConvertToPreviewProps {
     blocksString: string;
@@ -42,10 +43,10 @@ const TemplateSelectionPage: React.FC<{
             // Fetch both public and user templates concurrently
             const [publicResponse, userResponse] = await Promise.all([
                 axios.get<TemplateResponse>(`${API_BASE_URL}/templates/public`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${token}`, 'api-key': API_KEY }
                 }),
                 axios.get<TemplateResponse>(`${API_BASE_URL}/templates/user/${user?._id}`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${token}`, 'api-key': API_KEY }
                 })
             ]);
 

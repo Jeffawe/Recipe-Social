@@ -12,6 +12,7 @@ const AuthModal = () => {
   const { login, register, googleLogin, isLoading } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -30,6 +31,7 @@ const AuthModal = () => {
           variant: "destructive",
           duration: 3000
         });
+        setError("Password must be at least 6 characters long.");
         return;
       }
 
@@ -50,6 +52,7 @@ const AuthModal = () => {
         variant: "destructive",
         duration: 3000
       });
+      setError("Wrong Username or Password");
     }
   };
 
@@ -166,6 +169,9 @@ const AuthModal = () => {
           >
             {isLoading ? 'Loading...' : (isLogin ? 'Login' : 'Register')}
           </Button>
+          {error &&
+            <p className='text-center text-red-500'>{error}</p>
+          }
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
