@@ -110,6 +110,24 @@ export interface RecipeData {
   updatedAt: string;
 }
 
+export interface Comment {
+  _id: string;
+  content: string;
+  author: {
+    _id: string;
+    username: string;
+  };
+  likes: string[];
+  createdAt: string;
+}
+
+export interface FAQ {
+  _id: string;
+  question: string;
+  answer: string;
+}
+
+
 export type RecipesResponse = {
   recipes: RecipeData[];
   likes: string[];

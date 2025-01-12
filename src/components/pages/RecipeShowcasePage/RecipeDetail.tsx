@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import DeleteRecipeModal from './DeleteRecipeModal';
 import { ReportRecipeModal } from './ReportRecipeModal';
+import CommentAndFAQTabs from './CommentAndFAQTab';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -46,16 +47,16 @@ const RecipePage: React.FC = () => {
 
       // Check the loggedIn state to decide whether to include the Authorization header
       const headers = isAuthenticated && localStorage.getItem('token')
-      ? { 
+        ? {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'api-key': API_KEY
         }
-      : { 'api-key': API_KEY };
-    
-    const { data: recipeResponse } = await axios.get<RecipeData>(
-      `${API_BASE_URL}/recipes/${id}`,
-      { headers }
-    );
+        : { 'api-key': API_KEY };
+
+      const { data: recipeResponse } = await axios.get<RecipeData>(
+        `${API_BASE_URL}/recipes/${id}`,
+        { headers }
+      );
 
       if (!recipeResponse.templateString) {
         setRecipe(recipeResponse);
@@ -167,11 +168,13 @@ const RecipePage: React.FC = () => {
                 ${block.config?.maxWidth ? `max-w-${block.config.maxWidth}` : ''}
                 ${block.config?.padding ? `p-${block.config.padding}` : ''}
                 ${block.config?.alignment ? `text-${block.config.alignment}` : ''}`}
-              >
+            >
               <Component data={recipe} config={block.config} />
             </div>
           );
         })}
+
+        <CommentAndFAQTabs recipeId={recipe._id} />
 
         <DeleteRecipeModal
           isOpen={isDeleteModalOpen}
