@@ -8,7 +8,7 @@ import {
     CardHeader,
     CardTitle
 } from '@/components/ui/card';
-import type { RecipeData } from '../../types/auth.js';
+import type { RecipeData, User } from '../../types/auth.js';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Star, Heart } from 'lucide-react';
 
@@ -21,10 +21,10 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 
 const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     const navigate = useNavigate();
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, setUser } = useAuth();
     const [isLiked, setIsLiked] = useState(recipe.likes?.includes(user?._id || ''));
     const [likesCount, setLikesCount] = useState(recipe.likes?.length || 0);
-    const [isSaved, setIsSaved] = useState(user?.createdAt.includes(recipe._id || ''));
+    const [isSaved, setIsSaved] = useState(user?.savedRecipes.includes(recipe._id || ''));
 
     const {
         _id,
@@ -71,7 +71,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         }
 
         try {
-            const response:any = await axios.post(
+            const response: any = await axios.post(
                 `${API_BASE_URL}/recipes/${_id}/save`,
                 {},
                 {
@@ -83,6 +83,13 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
             );
 
             if (response.data.success) {
+                if (recipe?._id && user) {
+                    const updatedUser: User = {
+                        ...user,
+                        savedRecipes: [...(user?.savedRecipes || []), recipe._id]
+                    };
+                    setUser(updatedUser);
+                }
                 setIsSaved(response.data.isSaved);
             }
         } catch (error) {

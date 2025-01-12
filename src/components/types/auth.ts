@@ -6,6 +6,7 @@ export interface User {
   profilePicture?: string;
   createdAt: string;
   createdRecipes: string[];
+  savedRecipes : string[]
 }
 
 export type RecipeCategory = 'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack' | 'Appetizer' | 'Beverage';
@@ -111,6 +112,7 @@ export interface RecipeData {
 
 export type RecipesResponse = {
   recipes: RecipeData[];
+  likes: string[];
   totalPages: number;
   currentPage: number;
 };
