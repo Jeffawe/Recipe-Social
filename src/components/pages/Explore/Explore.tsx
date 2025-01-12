@@ -161,7 +161,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
 
   // Main Content Component
   const MainContent = () => (
-    <div className="flex-1">
+    <div className="flex-1 min-h-screen">
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <Loader2 className="w-8 h-8 animate-spin" />
@@ -261,18 +261,45 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
 
         <TabsContent value="featured">
           <div className="flex gap-6">
+            {/* Sidebar */}
+            {!isMinimal && isSidebarVisible && (
+              <div className="w-64 shrink-0">
+                <FilterSidebar
+                  filters={filters}
+                  onFilterChange={handleFilterChange}
+                />
+              </div>
+            )}
             <MainContent />
           </div>
         </TabsContent>
 
         <TabsContent value="popular">
           <div className="flex gap-6">
+            {/* Sidebar */}
+            {!isMinimal && isSidebarVisible && (
+              <div className="w-64 shrink-0">
+                <FilterSidebar
+                  filters={filters}
+                  onFilterChange={handleFilterChange}
+                />
+              </div>
+            )}
             <MainContent />
           </div>
         </TabsContent>
 
         <TabsContent value="latest">
           <div className="flex gap-6">
+            {/* Sidebar */}
+            {!isMinimal && isSidebarVisible && (
+              <div className="w-64 shrink-0">
+                <FilterSidebar
+                  filters={filters}
+                  onFilterChange={handleFilterChange}
+                />
+              </div>
+            )}
             <MainContent />
           </div>
         </TabsContent>

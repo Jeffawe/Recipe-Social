@@ -33,6 +33,7 @@ const Footer: React.FC<FooterProps> = ({
               This website and its contents are protected by copyright law. 
               Unauthorized use or reproduction of this material is strictly prohibited.
             </p>
+            <p className='py-2'>Chef icon by <a className="text-white hover:text-gray-700" href='https://icons8.com'>Icon8</a></p>
           </div>
         </div>
       </div>
