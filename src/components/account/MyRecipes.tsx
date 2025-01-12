@@ -16,7 +16,7 @@ interface MyRecipesProps {
 }
 
 const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
-    const [activeTab, setActiveTab] = useState('created');
+    const [activeTab, setActiveTab] = useState<'created' | 'saved'>('created');
     const [createdRecipes, setCreatedRecipes] = useState<RecipeData[]>([]);
     const [savedRecipes, setSavedRecipes] = useState<RecipeData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -27,6 +27,7 @@ const MyRecipes: React.FC<MyRecipesProps> = ({ userId, isOwnProfile }) => {
     const fetchRecipes = async (type: 'created' | 'saved') => {
         try {
             setIsLoading(true);
+            if(type == null) type = activeTab
             const response:any = await axios.get(`${API_BASE_URL}/auth/${userId}/recipes/${type}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,

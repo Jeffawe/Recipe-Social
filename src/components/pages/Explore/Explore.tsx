@@ -43,7 +43,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
     latest: false,
     limit: 10
   });
-  const [likes, setLikes] = useState<string[]>([])
+  //const [likes, setLikes] = useState<string[]>([])
 
   const fetchRecipes = _.debounce(async () => {
     try {
@@ -75,7 +75,6 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
         currentPage: response.data.currentPage,
         totalPages: response.data.totalPages
       });
-      setLikes(response.data.likes)
     } catch (err) {
       setError('Failed to fetch recipes');
       console.error('Error fetching recipes:', err);
