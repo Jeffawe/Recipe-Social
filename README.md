@@ -25,7 +25,7 @@ This project connects to a **Node.js/Express backend** with MongoDB for data sto
 ---
 
 ## Deployment  
-This frontend is deployed on **Vercel**. Check out the live site [here](#).  
+This frontend is deployed on **Vercel**. Check out the live site [here](https://recipe-social.vercel.app).  
 
 ---
 
