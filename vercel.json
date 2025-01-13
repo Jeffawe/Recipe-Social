@@ -1,10 +1,8 @@
 {
-  "redirects": [
+  "rewrites": [
     {
-      "source": "/:path*",
-      "destination": "/",
-      "permanent": false,
-      "exclude": ["/**/*.js", "/**/*.css", "/**/*.png", "/**/*.jpg", "/**/*.jpeg", "/**/*.svg", "/**/*.ico"]
+      "source": "/((?!static|images|css|js|favicon.ico).*)",
+      "destination": "/index.html"
     }
   ]
 }
