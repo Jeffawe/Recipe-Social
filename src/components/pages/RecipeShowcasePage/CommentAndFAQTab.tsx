@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/components/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ThumbsUp } from 'lucide-react';
+import { Delete, ThumbsUp } from 'lucide-react';
 import { FAQ, Comment } from '@/components/types/auth';
 
 interface CommentAndFAQTabsProps {
@@ -33,7 +33,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId }) => {
         try {
             setIsLoading(true);
             const { data } = await axios.get<CommentResponse>(
-                `${API_BASE_URL}/comments/${recipeId}?page=${pageNum}`,
+                `${API_BASE_URL}/cf/comments/${recipeId}?page=${pageNum}`,
                 {
                     headers: {
                         'api-key': import.meta.env.VITE_API_KEY
@@ -55,7 +55,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId }) => {
 
     const fetchFAQs = async () => {
         try {
-            const { data } = await axios.get<FAQ[]>(`${API_BASE_URL}/faqs`, {
+            const { data } = await axios.get<FAQ[]>(`${API_BASE_URL}/cf/faqs/${recipeId}`, {
                 headers: {
                     'api-key': import.meta.env.VITE_API_KEY
                 }
@@ -71,7 +71,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId }) => {
 
         try {
             const { data } = await axios.post<Comment>(
-                `${API_BASE_URL}/comments`,
+                `${API_BASE_URL}/cf/comments`,
                 {
                     content: newComment,
                     recipeId
@@ -95,7 +95,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId }) => {
 
         try {
             const { data } = await axios.post<Comment>(
-                `${API_BASE_URL}/comments/${commentId}/like`,
+                `${API_BASE_URL}/cf/comments/${commentId}/like`,
                 {},
                 {
                     headers: {
@@ -111,6 +111,20 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId }) => {
             );
         } catch (error) {
             console.error('Error liking comment:', error);
+        }
+    };
+
+    const handleDelete = async (commentId: string) => {
+        if (!isAuthenticated) return;
+
+        try {
+            await axios.delete(
+                `${API_BASE_URL}/cf/faqs/delete${commentId}`,
+            );
+
+            setComments(prev => prev.filter(comment => comment._id !== commentId));
+        } catch (error) {
+            console.error('Error Deleting comment:', error);
         }
     };
 
@@ -154,12 +168,23 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId }) => {
                                             <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
                                             <button
                                                 onClick={() => handleLike(comment._id)}
+                                                disabled={true}
                                                 className={`ml-4 flex items-center ${comment.likes.includes(user?._id || '') ? 'text-blue-500' : ''
                                                     }`}
                                             >
                                                 <ThumbsUp className="h-4 w-4 mr-1" />
                                                 {comment.likes.length}
                                             </button>
+                                            {isAuthenticated && comment.author._id == user?._id &&
+                                                <button
+                                                    onClick={() => handleDelete(comment._id)}
+                                                    className={`ml-4 flex items-center ${comment.likes.includes(user?._id || '') ? 'text-blue-500' : ''
+                                                        }`}
+                                                >
+                                                    <Delete className="h-4 w-4 mr-1" />
+                                                    {comment.likes.length}
+                                                </button>
+                                            }
                                         </div>
                                     </div>
                                 </div>

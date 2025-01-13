@@ -123,6 +123,10 @@ export interface Comment {
 
 export interface FAQ {
   _id: string;
+  author: {
+    _id: string;
+    username: string;
+  };
   question: string;
   answer: string;
 }
@@ -130,7 +134,6 @@ export interface FAQ {
 
 export type RecipesResponse = {
   recipes: RecipeData[];
-  likes: string[];
   totalPages: number;
   currentPage: number;
 };

@@ -158,9 +158,8 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
     );
   };
 
-  // Main Content Component
   const MainContent = () => (
-    <div className="flex-1 min-h-screen">
+    <div className="flex-1 min-h-screen w-full"> {/* Added w-full */}
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <Loader2 className="w-8 h-8 animate-spin" />
@@ -169,7 +168,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
         <div className="text-center text-black">Can't access any recipes at this time</div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {recipes.map(recipe => (
               <RecipeCard key={recipe._id} recipe={recipe} />
             ))}
@@ -191,9 +190,9 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
     <div className={`w-full ${isMinimal ? 'max-w-1xl' : 'max-w-5xl'} mx-auto p-4`}>
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <div className="flex flex-col space-y-6">
-          {/* Centered Tabs */}
-          <div className="flex justify-center">
-            <TabsList>
+          {/* Make tabs scrollable on mobile */}
+          <div className="flex justify-center overflow-x-auto">
+            <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="all">All Recipes</TabsTrigger>
               <TabsTrigger value="featured">Featured</TabsTrigger>
               <TabsTrigger value="popular">Popular</TabsTrigger>
@@ -201,7 +200,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
             </TabsList>
           </div>
 
-          {/* Filter Toggle */}
+          {/* Filter Toggle - adjusted for mobile */}
           <div className="flex justify-end">
             {isMinimal ? (
               <Button
@@ -227,82 +226,45 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
           </div>
         </div>
 
-        <TabsContent value="all" className="mt-6">
-          <div className="flex gap-6">
-            {/* Sidebar */}
-            {!isMinimal && isSidebarVisible && (
-              <div className="w-64 shrink-0">
-                <FilterSidebar
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-                />
-              </div>
-            )}
-
-            {/* Sheet for minimal mode */}
-            {isMinimal && (
-              <Sheet>
-                <SheetContent>
-                  <SheetHeader>
-                    <SheetTitle>Filter Recipes</SheetTitle>
-                  </SheetHeader>
+        {/* Modified TabsContent for all tabs */}
+        {['all', 'featured', 'popular', 'latest'].map(tab => (
+          <TabsContent key={tab} value={tab} className="mt-6">
+            <div className="flex flex-col md:flex-row gap-6"> {/* Changed to flex-col on mobile */}
+              {/* Sidebar - modified for responsive layout */}
+              {!isMinimal && isSidebarVisible && (
+                <div className="w-full md:w-64 md:shrink-0">
                   <FilterSidebar
                     filters={filters}
                     onFilterChange={handleFilterChange}
                   />
-                </SheetContent>
-              </Sheet>
-            )}
+                </div>
+              )}
 
-            <MainContent />
-          </div>
-        </TabsContent>
+              {/* Sheet for minimal mode */}
+              {isMinimal && (
+                <Sheet>
+                  <SheetContent side="top" className="w-full sm:max-w-xl">
+                    <SheetHeader>
+                      <SheetTitle>Filter Recipes</SheetTitle>
+                    </SheetHeader>
+                    <FilterSidebar
+                      filters={filters}
+                      onFilterChange={handleFilterChange}
+                    />
+                  </SheetContent>
+                </Sheet>
+              )}
 
-        <TabsContent value="featured">
-          <div className="flex gap-6">
-            {/* Sidebar */}
-            {!isMinimal && isSidebarVisible && (
-              <div className="w-64 shrink-0">
-                <FilterSidebar
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-                />
-              </div>
-            )}
-            <MainContent />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="popular">
-          <div className="flex gap-6">
-            {/* Sidebar */}
-            {!isMinimal && isSidebarVisible && (
-              <div className="w-64 shrink-0">
-                <FilterSidebar
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-                />
-              </div>
-            )}
-            <MainContent />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="latest">
-          <div className="flex gap-6">
-            {/* Sidebar */}
-            {!isMinimal && isSidebarVisible && (
-              <div className="w-64 shrink-0">
-                <FilterSidebar
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-                />
-              </div>
-            )}
-            <MainContent />
-          </div>
-        </TabsContent>
+              <MainContent />
+            </div>
+          </TabsContent>
+        ))}
       </Tabs>
+
+      {/* Modified Pagination for better mobile display */}
+      <div className="mt-8 overflow-x-auto">
+        <Pagination />
+      </div>
     </div>
   );
 };

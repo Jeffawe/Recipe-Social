@@ -96,9 +96,20 @@ const AuthModal = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <div className="flex gap-2">
-          <Button variant="outline" className='text-black' onClick={setIsLoginTrue}>Login</Button>
-          <Button onClick={setIsLoginFalse} className='bg-orange-500 hover:bg-orange-600'>Register</Button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button
+            variant="outline"
+            className="text-black"
+            onClick={setIsLoginTrue}
+          >
+            Login
+          </Button>
+          <Button
+            onClick={setIsLoginFalse}
+            className="bg-orange-500 hover:bg-orange-600"
+          >
+            Register
+          </Button>
         </div>
       </DialogTrigger>
       <DialogContent
