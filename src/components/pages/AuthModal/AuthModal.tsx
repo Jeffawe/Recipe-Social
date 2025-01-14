@@ -162,7 +162,7 @@ const AuthModal = () => {
                   ...prev,
                   username: e.target.value.trim()
                 }))}
-                disabled={isLoading}
+                disabled={isLogin ? isLoading : true}
                 autoComplete="username"
                 required
               />
@@ -180,7 +180,7 @@ const AuthModal = () => {
                 ...prev,
                 email: e.target.value.trim()
               }))}
-              disabled={isLoading}
+              disabled={isLogin ? isLoading : true}
               autoComplete="email"
               required
             />
@@ -198,7 +198,7 @@ const AuthModal = () => {
                   ...prev,
                   password: e.target.value
                 }))}
-                disabled={isLoading}
+                disabled={isLogin ? isLoading : true}
                 autoComplete={isLogin ? "current-password" : "new-password"}
                 required
                 minLength={MIN_PASSWORD_LENGTH}
