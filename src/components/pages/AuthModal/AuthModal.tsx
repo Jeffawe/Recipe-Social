@@ -130,8 +130,8 @@ const AuthModal = () => {
                   ...prev,
                   username: e.target.value
                 }))}
-                disabled={isLogin ? isLoading : true}
-                //disabled={isLoading}
+                //disabled={isLogin ? isLoading : true}
+                disabled={isLoading}
                 autoComplete="username"
               />
             </div>
@@ -148,8 +148,8 @@ const AuthModal = () => {
                 ...prev,
                 email: e.target.value
               }))}
-              disabled={isLogin ? isLoading : true}
-              //disabled={isLoading}
+              //disabled={isLogin ? isLoading : true}
+              disabled={isLoading}
               autoComplete="email"
             />
           </div>
@@ -165,8 +165,8 @@ const AuthModal = () => {
                 ...prev,
                 password: e.target.value
               }))}
-              disabled={isLogin ? isLoading : true}
-              //disabled={isLoading}
+              //disabled={isLogin ? isLoading : true}
+              disabled={isLoading}
               autoComplete={isLogin ? "current-password" : "new-password"}
             />
             {formData.password && formData.password.length < 6 && (
