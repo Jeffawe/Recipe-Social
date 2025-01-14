@@ -131,6 +131,7 @@ const AuthModal = () => {
                   username: e.target.value
                 }))}
                 disabled={isLogin ? isLoading : true}
+                //disabled={isLoading}
                 autoComplete="username"
               />
             </div>
@@ -148,6 +149,7 @@ const AuthModal = () => {
                 email: e.target.value
               }))}
               disabled={isLogin ? isLoading : true}
+              //disabled={isLoading}
               autoComplete="email"
             />
           </div>
@@ -164,6 +166,7 @@ const AuthModal = () => {
                 password: e.target.value
               }))}
               disabled={isLogin ? isLoading : true}
+              //disabled={isLoading}
               autoComplete={isLogin ? "current-password" : "new-password"}
             />
             {formData.password && formData.password.length < 6 && (
@@ -198,7 +201,7 @@ const AuthModal = () => {
             variant="outline"
             className="w-full text-black"
             onClick={handleGoogleSignIn}
-            disabled={isLogin ? isLoading : true}
+            disabled={isLoading}
           >
             <Mail className="mr-2 h-4 w-4 text-black" />
             Continue with Google
