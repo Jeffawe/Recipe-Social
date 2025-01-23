@@ -6,6 +6,7 @@ import Explore from '../pages/Explore/Explore';
 import { PlusIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Skeleton } from "@/components/ui/skeleton";
+import BetaNoticeModal from '../Beta/BetaNoticeModal';
 
 const Home: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -51,6 +52,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative bg-gradient-to-br from-orange-50 to-white">
+      <BetaNoticeModal />
       <div className="w-full px-0 flex-grow">
         <LandingPage />
         {isAuthenticated && <SearchBar />}

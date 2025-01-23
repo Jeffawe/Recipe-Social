@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import BugReportModal from '../Beta/BugReportModal';
 
 interface FooterProps {
   appName?: string;
@@ -7,12 +8,20 @@ interface FooterProps {
 const Footer: React.FC<FooterProps> = ({ 
   appName = 'Recipe Social'
 }) => {
+  const [isBugModalOpen, setIsBugModalOpen] = useState(false);
   const currentYear = new Date().getFullYear();
 
   return (
     <footer className="w-full bg-orange-500 border-t mt-auto">
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex flex-col items-center justify-center space-y-4">
+          <button 
+            onClick={() => setIsBugModalOpen(true)}
+            className="bg-white text-orange-500 px-4 py-2 rounded-md hover:bg-gray-100"
+          >
+            Report a Bug
+          </button>
+
           <div className="text-center">
             <p className="text-sm text-white">
               Created by{' '}
@@ -37,6 +46,11 @@ const Footer: React.FC<FooterProps> = ({
           </div>
         </div>
       </div>
+
+      <BugReportModal 
+        isOpen={isBugModalOpen} 
+        onClose={() => setIsBugModalOpen(false)} 
+      />
     </footer>
   );
 };
