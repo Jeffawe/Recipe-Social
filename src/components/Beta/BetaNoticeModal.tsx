@@ -35,13 +35,13 @@ const BetaNoticeModal: React.FC<BetaNoticeModalProps> = () => {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex justify-between items-center">
-            <span>Welcome to Recipe Hub Beta</span>
+            <span>Welcome to Recipe Social Beta</span>
           </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
           <p className="text-gray-600">
-            Thank you for using Recipe Hub! We're currently in beta, and we appreciate your patience.
+            Thank you for using Recipe Social! We're currently in beta, and we appreciate your patience.
           </p>
           
           <div>
