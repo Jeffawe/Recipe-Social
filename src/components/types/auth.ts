@@ -106,6 +106,8 @@ export interface RecipeData {
     username: string;
     email: string;
   };
+  external: boolean;
+  pageURL: string;
   createdAt: string;
   updatedAt: string;
 }

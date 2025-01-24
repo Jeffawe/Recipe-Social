@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import _ from 'lodash';
@@ -10,7 +10,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Filter, Loader2 } from 'lucide-react';
+import { Filter, Loader2, Search } from 'lucide-react';
 import type { RecipeData, FilterState, RecipesResponse } from '../../types/auth.js';
 import RecipeCard from './RecipeCard.js';
 import FilterSidebar from './FilterSidebar.js';
@@ -32,6 +32,8 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
     currentPage: 1,
     totalPages: 1
   });
+  const [searchTerm, setSearchTerm] = useState('');
+  const location = useLocation();
   const [isSidebarVisible, setIsSidebarVisible] = useState(!isMinimal);
   const [filters, setFilters] = useState<FilterState>({
     categories: [],
@@ -56,7 +58,8 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
         ...(filters.featured == true && { featured: 'true' }),
         ...(filters.popular && { popular: 'true' }),
         ...(filters.latest && { latest: 'true' }),
-        ...(filters.categories.length && { category: filters.categories[0] })
+        ...(filters.categories.length && { category: filters.categories[0] }),
+        ...(searchTerm && { search: searchTerm })
       });
 
       console.log(params.toString())
@@ -103,6 +106,15 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
   useEffect(() => {
     fetchRecipes();
   }, [filters]);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const urlSearchTerm = searchParams.get('search');
+
+    if (urlSearchTerm) {
+      setSearchTerm(urlSearchTerm);
+    }
+  }, [location.search]);
 
   const Pagination = () => {
     if (pagination.totalPages <= 1) return null;
@@ -188,6 +200,23 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
 
   return (
     <div className={`w-full ${isMinimal ? 'max-w-1xl' : 'max-w-5xl'} mx-auto p-4`}>
+      {!isMinimal &&
+        <div className="mb-4">
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              placeholder="Search recipes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg"
+            />
+            <Search
+              className="absolute right-3 text-gray-400"
+              size={20}
+            />
+          </div>
+        </div>
+      }
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <div className="flex flex-col space-y-6">
           {/* Make tabs scrollable on mobile */}
