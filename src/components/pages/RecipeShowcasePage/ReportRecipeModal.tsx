@@ -41,13 +41,13 @@ export const ReportRecipeModal: React.FC<ReportModalProps> = ({
         }
     
         const payload = {
-          content: "New Bug Report",
+          content: "New Recipe Report",
           embeds: [{
-            title: "Bug Report",
+            title: "Recipe Report",
             fields: [
               { name: "Description", value: description }
             ],
-            color: 16711680 // Red color
+            color: 3447003 
           }]
         };
     
