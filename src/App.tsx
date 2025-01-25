@@ -15,6 +15,7 @@ import CookingPreferences from './components/account/Settings Options/CookingPre
 import ProfilePage from './components/account/Profile';
 import UpdateRecipe from './components/pages/UpdateRecipe/UpdateRecipe';
 import SearchPage from './components/pages/SearchPage/SearchPage';
+import { Analytics } from '@vercel/analytics/react';
 
 const App: React.FC = () => {
   return (
@@ -55,6 +56,7 @@ const App: React.FC = () => {
               </Route>
             </Routes>
             <Footer />
+            <Analytics />
           </div>
         </Router>
       </RecipeProvider>
