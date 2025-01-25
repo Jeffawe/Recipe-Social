@@ -44,7 +44,7 @@ const App: React.FC = () => {
                 }
               />
               <Route path="/templates" element={<TemplateEditor />} />
-              <Route path="/recipe/:id" element={<RecipePage />} />
+              <Route path="/recipe/:originalId" element={<RecipePage />} />
               <Route path="/profile/:id" element={<ProfilePage />} />
               <Route path="/settings" element={<ProtectedRoute> <SettingsLayout /> </ProtectedRoute>}>
                 <Route path="account" element={<ProtectedRoute> <AccountSettings /> </ProtectedRoute>} />

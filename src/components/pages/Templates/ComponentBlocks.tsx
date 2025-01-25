@@ -38,7 +38,6 @@ export const blocksToString = (blocks: Block[]): string => {
 
 export const convertStringToBlockTypes = (blocksString: string): Block[] => {
     try {
-        console.log(blocksString);
         const parsedBlocks = JSON.parse(JSON.parse(blocksString));
         return parsedBlocks.map((block: { type: string; config: BlockConfig }) => ({
             id: `${block.type}-${Date.now()}`, // Generate a new ID for each block
@@ -130,7 +129,6 @@ const NutritionInfo: React.FC<BlockComponentProps> = ({ data }) => (
 
 const RecipeImage: React.FC<BlockComponentProps> = ({ data, config }) => (
     <div className="mb-6">
-        <h2 className="text-2xl font-semibold mb-3">Recipe Image {(config?.imageIndex || 0) + 1}</h2>
         {data?.images?.[config?.imageIndex || 0] ? (
             <img
                 src={data.images[config?.imageIndex || 0].url}

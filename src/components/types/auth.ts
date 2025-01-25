@@ -133,6 +133,10 @@ export interface FAQ {
   answer: string;
 }
 
+export type RecipesScrapeResponse = {
+  data: RecipeData[];
+  success: boolean
+};
 
 export type RecipesResponse = {
   recipes: RecipeData[];

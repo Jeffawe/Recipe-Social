@@ -24,6 +24,7 @@ interface ExploreRecipesProps {
 
 const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +34,6 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
     totalPages: 1
   });
   const [searchTerm, setSearchTerm] = useState('');
-  const location = useLocation();
   const [isSidebarVisible, setIsSidebarVisible] = useState(!isMinimal);
   const [filters, setFilters] = useState<FilterState>({
     categories: [],
@@ -62,7 +62,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
         ...(searchTerm && { search: searchTerm })
       });
 
-      console.log(params.toString())
+      localStorage.setItem('searchValue', searchTerm)
       const response = await axios.get<RecipesResponse>(
         `${API_BASE_URL}/recipes?${params.toString()}`,
         {
@@ -73,6 +73,8 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
         }
       );
 
+      const externalRecipes = response.data.recipes.filter((recipe) => recipe.external === true);
+      storeExternalRecipe(externalRecipes);
       setRecipes(response.data.recipes);
       setPagination({
         currentPage: response.data.currentPage,
@@ -80,11 +82,14 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
       });
     } catch (err) {
       setError('Failed to fetch recipes');
-      console.error('Error fetching recipes:', err);
     } finally {
       setLoading(false);
     }
   }, 500);
+
+  const storeExternalRecipe = (recipeData: RecipeData[]) => {
+    localStorage.setItem('externalRecipes', JSON.stringify(recipeData));
+  };
 
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
@@ -103,6 +108,14 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
     }
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (searchTerm) {
+      fetchRecipes();
+    }
+  };
+
   useEffect(() => {
     fetchRecipes();
   }, [filters]);
@@ -113,6 +126,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
 
     if (urlSearchTerm) {
       setSearchTerm(urlSearchTerm);
+      fetchRecipes();
     }
   }, [location.search]);
 
@@ -191,8 +205,6 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
               No recipes found matching your criteria
             </div>
           )}
-
-          <Pagination />
         </>
       )}
     </div>
@@ -202,19 +214,27 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
     <div className={`w-full ${isMinimal ? 'max-w-1xl' : 'max-w-5xl'} mx-auto p-4`}>
       {!isMinimal &&
         <div className="mb-4">
-          <div className="relative flex items-center">
+          <form
+            onSubmit={handleSearch}
+            className="relative flex items-center"
+          >
             <input
               type="text"
               placeholder="Search recipes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-2 pr-10 border rounded-lg"
             />
-            <Search
-              className="absolute right-3 text-gray-400"
-              size={20}
-            />
-          </div>
+            <button
+              type="submit"
+              className="absolute right-0 mr-1 p-2"
+            >
+              <Search
+                className="text-gray-400 hover:text-gray-600"
+                size={20}
+              />
+            </button>
+          </form>
         </div>
       }
       <Tabs value={activeTab} onValueChange={handleTabChange}>

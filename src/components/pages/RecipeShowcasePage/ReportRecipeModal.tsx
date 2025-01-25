@@ -27,11 +27,42 @@ export const ReportRecipeModal: React.FC<ReportModalProps> = ({
 
     const handleSubmit = async () => {
         try {
-            console.log(description)
+            if(description){ await sendToDiscord(description) }
+
         } catch (err) {
             setError('Failed to submit report');
         }
     };
+
+    const sendToDiscord = async (description: string) => {
+        const webhookUrl = import.meta.env.VITE_DISCORD_WEBHOOK_URL;
+        if (!webhookUrl) {
+          throw new Error('Discord webhook URL not configured');
+        }
+    
+        const payload = {
+          content: "New Bug Report",
+          embeds: [{
+            title: "Bug Report",
+            fields: [
+              { name: "Description", value: description }
+            ],
+            color: 16711680 // Red color
+          }]
+        };
+    
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+    
+        if (!response.ok) {
+          throw new Error('Discord webhook failed');
+        }
+      };
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>

@@ -32,6 +32,8 @@ export const convertToRecipeData = (formData: RecipeFormData, user: User): Recip
         username: user.username,
         email: user.email
       },
+      external: false,
+      pageURL: '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };

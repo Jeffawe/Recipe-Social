@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card';
 import type { RecipeData, User } from '../../types/auth.js';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Star, Heart } from 'lucide-react';
+import { Clock, Star, Heart, ChefHat } from 'lucide-react';
 
 interface RecipeCardProps {
     recipe: RecipeData;
@@ -97,21 +97,39 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         }
     };
 
+    const navigateToRecipe = () => {
+        if(recipe.external){
+            navigate(`/recipe/external-${_id}`)
+        }else{
+            navigate(`/recipe/${_id}`)
+        }
+    }
+
     return (
         <Card
             className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => navigate(`/recipe/${_id}`)}
+            onClick={navigateToRecipe}
         >
             <CardHeader className="p-0">
-                <img
-                    src={images[0]?.url || '/placeholder-recipe.jpg'}
-                    alt={title}
-                    className="w-full h-48 object-cover rounded-t-lg"
-                />
+                {images[0]?.url ? (
+                    <img
+                        src={images[0]?.url}
+                        alt={title}
+                        className="w-full h-48 object-cover rounded-t-lg"
+                    />
+                ) : (
+                    <div className="w-full h-48 bg-gray-200 rounded-t-lg flex flex-col items-center justify-center p-4">
+                        <div className="mb-2">
+                            <ChefHat className="text-orange-500 w-12 h-12" />
+                        </div>
+                        <span className="text-lg font-semibold text-gray-800">Recipe Social Recipe</span>
+                    </div>
+
+                )}
             </CardHeader>
             <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-2">
-                    <CardTitle className="text-lg">{title}</CardTitle>
+                    <CardTitle className="text-lg truncate">{title}</CardTitle>
                     <Badge variant="secondary">{category}</Badge>
                 </div>
                 <p className="text-sm text-gray-600 line-clamp-2 mb-3">{description}</p>
@@ -123,16 +141,18 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                         </span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button
-                            onClick={handleLike}
-                            className="flex items-center gap-1"
-                            title={isAuthenticated ? 'Like recipe' : 'Login to like recipe'}
-                        >
-                            <Heart
-                                className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-500'} hover:text-red-500 transition-colors`}
-                            />
-                            <span className="text-sm text-gray-600">{likesCount}</span>
-                        </button>
+                        {!recipe.external &&
+                            <button
+                                onClick={handleLike}
+                                className="flex items-center gap-1"
+                                title={isAuthenticated ? 'Like recipe' : 'Login to like recipe'}
+                            >
+                                <Heart
+                                    className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-500'} hover:text-red-500 transition-colors`}
+                                />
+                                <span className="text-sm text-gray-600">{likesCount}</span>
+                            </button>
+                        }
                         <button
                             onClick={handleSave}
                             className="flex items-center gap-1"

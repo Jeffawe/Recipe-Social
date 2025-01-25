@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useRecipe } from '@/components/context/RecipeDataContext';
-import { RecipeData } from '@/components/types/auth';
+import { RecipeData, RecipesScrapeResponse } from '@/components/types/auth';
 import BLOCK_COMPONENTS, { BLOCK_TYPES, convertStringToBlockTypes, Block } from '../Templates/ComponentBlocks';
 import { useAuth } from '@/components/context/AuthContext';
 import { Settings } from 'lucide-react';
@@ -19,9 +19,15 @@ import CommentAndFAQTabs from './CommentAndFAQTab';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_KEY = import.meta.env.VITE_API_KEY;
 const DEFAULT_TEMPLATE = import.meta.env.VITE_DEFAULT_TEMPLATE;
+const DEFAULT_TEMPLATE_EXTERNAL = import.meta.env.VITE_DEFAULT_TEMPLATE_EXTERNAL;
 
 const RecipePage: React.FC = () => {
-  const { id } = useParams();
+  const { originalId } = useParams<{ originalId?: string }>();
+
+  const id = originalId?.startsWith("external-")
+    ? originalId.replace("external-", "")
+    : originalId || "";
+
   const { recipeData, setRecipeData } = useRecipe();
   const { isAuthenticated, user } = useAuth();
   const [recipe, setRecipe] = useState<RecipeData | null>(null);
@@ -34,22 +40,67 @@ const RecipePage: React.FC = () => {
 
   const navigate = useNavigate()
 
+  const fetchScrapedData = async () => {
+    try {
+      const { data: recipeResponse } = await axios.post<RecipesScrapeResponse>(
+        `${API_BASE_URL}/scrape`,
+        {
+          search_data: {
+            title: `${localStorage.getItem('searchValue')}`
+          },
+          threshold: 0.3
+        },
+        {
+          headers: {
+            'api-key': API_KEY,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      if (recipeResponse?.success) {
+        const recipe = recipeResponse.data?.find(recipe => recipe._id === id);
+        if (!recipe) {
+          throw new Error("Can't find Recipe");
+        }
+        setRecipe(recipe);
+
+        // Default template assignment
+        setTemplate(convertStringToBlockTypes(DEFAULT_TEMPLATE_EXTERNAL));
+      } else {
+        throw new Error('Scrape API call failed or returned invalid data');
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const fetchRecipeData = async () => {
     try {
-      // If recipeData is already available, use it directly
+      // Handle external recipes
+      if (originalId?.includes("external-")) {
+        const recipe = getRecipeById(id);
+        if (recipe) {
+          setRecipe(recipe);
+          setTemplate(convertStringToBlockTypes(DEFAULT_TEMPLATE_EXTERNAL));
+          return;
+        } else {
+          await fetchScrapedData();
+          return;
+        }
+      }
+      // Use recipeData if available
       if (recipeData?.templateString) {
         setRecipe(recipeData);
-        setRecipeData(null)
-        const blockTypes = convertStringToBlockTypes(recipeData.templateString);
-        setTemplate(blockTypes);
+        setRecipeData(null);
+        setTemplate(convertStringToBlockTypes(recipeData.templateString));
         return;
       }
 
-      // Check the loggedIn state to decide whether to include the Authorization header
+      // Fetch recipe from API
       const headers = isAuthenticated && localStorage.getItem('token')
         ? {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
-          'api-key': API_KEY
+          'api-key': API_KEY,
         }
         : { 'api-key': API_KEY };
 
@@ -58,23 +109,39 @@ const RecipePage: React.FC = () => {
         { headers }
       );
 
-      if (!recipeResponse.templateString) {
-        setRecipe(recipeResponse);
-        const blockTypes2 = convertStringToBlockTypes(DEFAULT_TEMPLATE);
-        setTemplate(blockTypes2);
-      } else {
-        setRecipe(recipeResponse);
-        const blockTypes = convertStringToBlockTypes(recipeResponse.templateString!);
-        setTemplate(blockTypes);
-      }
+      setRecipe(recipeResponse);
+
+      const templateString = recipeResponse.templateString || DEFAULT_TEMPLATE;
+      setTemplate(convertStringToBlockTypes(templateString));
     } catch (error) {
-      // Handle errors (e.g., 404 or network issues)
-      console.error('Error fetching recipe:', error);
+      // Navigate on error
       setError(
         error instanceof Error ? error.message : 'An unexpected error occurred'
       );
+      const searchTerm = localStorage.getItem('searchValue')
+      if (searchTerm && searchTerm.trim()) {
+        navigate(`/explore?search=${encodeURIComponent(searchTerm)}`);
+      } else {
+        navigate('/explore');
+      }
+
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
+    }
+  };
+
+  const getRecipeById = (id: string) => {
+    if (!id) return null;
+
+    const storedRecipes = localStorage.getItem('externalRecipes');
+    if (!storedRecipes) return null;
+
+    try {
+      const recipes: RecipeData[] = JSON.parse(storedRecipes);
+      return recipes.find(recipe => recipe._id === id) || null;
+    } catch (error) {
+      //console.error('Error parsing externalRecipes from localStorage:', error);
+      return null;
     }
   };
 
@@ -174,7 +241,17 @@ const RecipePage: React.FC = () => {
           );
         })}
 
-        <CommentAndFAQTabs recipeId={recipe._id} />
+        {recipe?.external &&
+          <div className="flex items-center justify-center">
+            <button onClick={() => window.open(recipe.pageURL, '_blank')} className="bg-gradient-to-br from-yellow-400 to-orange-500 hover:from-orange-400 hover:to-red-500 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-all">
+              Visit Page
+            </button>
+          </div>
+        }
+
+        {!recipe.external &&
+          <CommentAndFAQTabs recipeId={recipe._id} />
+        }
 
         <DeleteRecipeModal
           isOpen={isDeleteModalOpen}

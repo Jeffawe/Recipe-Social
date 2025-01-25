@@ -58,7 +58,6 @@ const AccountSettings = () => {
       console.log('User deleted successfully:', response.data.message);
     logout();
     } catch (error: any) {
-      console.error('Error deleting user:', error.response || error.message);
       setErrorMessage(error.response?.data?.message || 'Failed to delete user');
       setIsToastOpen(true);
     }
