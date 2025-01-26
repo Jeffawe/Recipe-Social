@@ -4,11 +4,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/components/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Delete, ThumbsUp } from 'lucide-react';
-import { FAQ, Comment } from '@/components/types/auth';
+import { Delete, ThumbsUp, Plus } from 'lucide-react';
+import { FAQ, Comment, RecipeData } from '@/components/types/auth';
 
 interface CommentAndFAQTabsProps {
     recipeId: string;
+    recipe: RecipeData;
 }
 
 export interface CommentResponse {
@@ -16,13 +17,23 @@ export interface CommentResponse {
     hasMore: boolean;
 }
 
+export interface FAQValue {
+    question: string;
+    answer: string;
+}
+
 type TabValue = 'comments' | 'faqs';
 
-const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId }) => {
+const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe }) => {
     const [activeTab, setActiveTab] = useState<TabValue>("comments");
     const [comments, setComments] = useState<Comment[]>([]);
     const [faqs, setFAQs] = useState<FAQ[]>([]);
     const [newComment, setNewComment] = useState("");
+    const [showFAQForm, setShowFAQForm] = useState(false);
+    const [newFAQ, setNewFAQ] = useState<FAQValue>({
+        question: '',
+        answer: ''
+    });
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
@@ -90,6 +101,32 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId }) => {
         }
     };
 
+    const handleFAQSubmit = async () => {
+        if (!newFAQ.question.trim() || !newFAQ.answer.trim() || !isAuthenticated) return;
+
+        try {
+            const { data } = await axios.post<FAQ>(
+                `${API_BASE_URL}/cf/faqs`,
+                {
+                    question: newFAQ.question,
+                    answer: newFAQ.answer,
+                    recipeId
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        'api-key': import.meta.env.VITE_API_KEY
+                    }
+                }
+            );
+            setFAQs(prev => [...prev, data]);
+            setNewFAQ({ question: '', answer: '' });
+            setShowFAQForm(false);
+        } catch (error) {
+            console.error('Error posting FAQ:', error);
+        }
+    };
+
     const handleLike = async (commentId: string) => {
         if (!isAuthenticated) return;
 
@@ -119,9 +156,14 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId }) => {
 
         try {
             await axios.delete(
-                `${API_BASE_URL}/cf/faqs/delete${commentId}`,
+                `${API_BASE_URL}/cf/comments/${commentId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        'api-key': import.meta.env.VITE_API_KEY
+                    }
+                }
             );
-
             setComments(prev => prev.filter(comment => comment._id !== commentId));
         } catch (error) {
             console.error('Error Deleting comment:', error);
@@ -138,85 +180,125 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId }) => {
 
     return (
         <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-            <Tabs defaultValue="comments" onValueChange={(value) => setActiveTab(value as TabValue)}>
-                <TabsList className="w-full mb-6">
-                    <TabsTrigger value="comments" className="flex-1">Comments</TabsTrigger>
-                    <TabsTrigger value="faqs" className="flex-1">FAQs</TabsTrigger>
-                </TabsList>
+            {!isAuthenticated && comments.length === 0 && faqs.length === 0 ? (
+                <div></div>
+            ) : (
+                <Tabs defaultValue="comments" onValueChange={(value) => setActiveTab(value as TabValue)}>
+                    <TabsList className="w-full mb-6">
+                        <TabsTrigger value="comments" className="flex-1">Comments</TabsTrigger>
+                        <TabsTrigger value="faqs" className="flex-1">FAQs</TabsTrigger>
+                    </TabsList>
 
-                <TabsContent value="comments">
-                    {isAuthenticated && (
-                        <div className="mb-6">
-                            <Textarea
-                                value={newComment}
-                                onChange={(e) => setNewComment(e.target.value)}
-                                placeholder="Write a comment..."
-                                className="mb-2"
-                            />
-                            <Button onClick={handleCommentSubmit}>Post Comment</Button>
-                        </div>
-                    )}
+                    <TabsContent value="comments">
+                        {isAuthenticated && (
+                            <div className="mb-6">
+                                <Textarea
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    placeholder="Write a comment..."
+                                    className="mb-2"
+                                />
+                                <Button onClick={handleCommentSubmit}>Post Comment</Button>
+                            </div>
+                        )}
 
-                    <div className="space-y-4">
-                        {comments.map((comment) => (
-                            <div key={comment._id} className="border-b pb-4">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <p className="font-medium">{comment.author.username}</p>
-                                        <p className="text-gray-600 mt-1">{comment.content}</p>
-                                        <div className="flex items-center mt-2 text-sm text-gray-500">
-                                            <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
-                                            <button
-                                                onClick={() => handleLike(comment._id)}
-                                                disabled={true}
-                                                className={`ml-4 flex items-center ${comment.likes.includes(user?._id || '') ? 'text-blue-500' : ''
-                                                    }`}
-                                            >
-                                                <ThumbsUp className="h-4 w-4 mr-1" />
-                                                {comment.likes.length}
-                                            </button>
-                                            {isAuthenticated && comment.author._id == user?._id &&
+                        <div className="space-y-4">
+                            {comments.map((comment) => (
+                                <div key={comment._id} className="border-b pb-4">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="font-medium">{comment.author.username}</p>
+                                            <p className="text-gray-600 mt-1">{comment.content}</p>
+                                            <div className="flex items-center mt-2 text-sm text-gray-500">
+                                                <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
                                                 <button
-                                                    onClick={() => handleDelete(comment._id)}
-                                                    className={`ml-4 flex items-center ${comment.likes.includes(user?._id || '') ? 'text-blue-500' : ''
-                                                        }`}
+                                                    onClick={() => handleLike(comment._id)}
+                                                    disabled={!isAuthenticated}
+                                                    className={`ml-4 flex items-center ${comment.likes.includes(user?._id || '') ? 'text-blue-500' : ''}`}
                                                 >
-                                                    <Delete className="h-4 w-4 mr-1" />
+                                                    <ThumbsUp className="h-4 w-4 mr-1" />
                                                     {comment.likes.length}
                                                 </button>
-                                            }
+                                                {isAuthenticated && comment.author._id === user?._id && (
+                                                    <button
+                                                        onClick={() => handleDelete(comment._id)}
+                                                        className="ml-4 flex items-center text-red-500"
+                                                    >
+                                                        <Delete className="h-4 w-4" />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                        {hasMore && (
-                            <Button
-                                variant="outline"
-                                onClick={() => {
-                                    setPage(prev => prev + 1);
-                                    fetchComments(page + 1);
-                                }}
-                                disabled={isLoading}
-                                className="w-full mt-4"
-                            >
-                                {isLoading ? "Loading..." : "Load More Comments"}
-                            </Button>
-                        )}
-                    </div>
-                </TabsContent>
+                            ))}
+                            {hasMore && (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setPage(prev => prev + 1);
+                                        fetchComments(page + 1);
+                                    }}
+                                    disabled={isLoading}
+                                    className="w-full mt-4"
+                                >
+                                    {isLoading ? "Loading..." : "Load More Comments"}
+                                </Button>
+                            )}
+                        </div>
+                    </TabsContent>
 
-                <TabsContent value="faqs">
-                    <div className="space-y-6">
-                        {faqs.map((faq) => (
-                            <div key={faq._id} className="border-b pb-4">
-                                <h3 className="font-medium text-lg mb-2">{faq.question}</h3>
-                                <p className="text-gray-600">{faq.answer}</p>
-                            </div>
-                        ))}
-                    </div>
-                </TabsContent>
-            </Tabs>
+                    <TabsContent value="faqs">
+                        <div className="space-y-6">
+                            {recipe.author._id === user?._id && !showFAQForm && (
+                                <Button
+                                    onClick={() => setShowFAQForm(true)}
+                                    className="mb-4"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Create FAQ
+                                </Button>
+                            )}
+
+                            {showFAQForm && (
+                                <div className="mb-6 space-y-4">
+                                    <Textarea
+                                        value={newFAQ.question}
+                                        onChange={(e) => setNewFAQ(prev => ({ ...prev, question: e.target.value }))}
+                                        placeholder="Question..."
+                                        className="mb-2"
+                                    />
+                                    <Textarea
+                                        value={newFAQ.answer}
+                                        onChange={(e) => setNewFAQ(prev => ({ ...prev, answer: e.target.value }))}
+                                        placeholder="Answer..."
+                                        className="mb-2"
+                                    />
+                                    <div className="flex space-x-2">
+                                        <Button onClick={handleFAQSubmit}>Submit FAQ</Button>
+                                        <Button 
+                                            variant="outline" 
+                                            onClick={() => {
+                                                setShowFAQForm(false);
+                                                setNewFAQ({ question: '', answer: '' });
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {faqs.map((faq) => (
+                                <div key={faq._id} className="border-b pb-4">
+                                    <h3 className="font-medium text-lg mb-2">{faq.question}</h3>
+                                    <p className="text-gray-600">{faq.answer}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </TabsContent>
+                </Tabs>
+            )}
         </div>
     );
 };

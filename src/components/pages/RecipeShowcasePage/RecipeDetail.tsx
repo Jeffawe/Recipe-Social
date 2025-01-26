@@ -250,7 +250,7 @@ const RecipePage: React.FC = () => {
         }
 
         {!recipe.external &&
-          <CommentAndFAQTabs recipeId={recipe._id} />
+          <CommentAndFAQTabs recipeId={recipe._id} recipe={recipe} />
         }
 
         <DeleteRecipeModal
