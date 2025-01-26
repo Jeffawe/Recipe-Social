@@ -179,125 +179,127 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe 
     }, [activeTab, recipeId]);
 
     return (
-        <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+        <div>
             {!isAuthenticated && comments.length === 0 && faqs.length === 0 ? (
                 <div></div>
             ) : (
-                <Tabs defaultValue="comments" onValueChange={(value) => setActiveTab(value as TabValue)}>
-                    <TabsList className="w-full mb-6">
-                        <TabsTrigger value="comments" className="flex-1">Comments</TabsTrigger>
-                        <TabsTrigger value="faqs" className="flex-1">FAQs</TabsTrigger>
-                    </TabsList>
+                <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+                    <Tabs defaultValue="comments" onValueChange={(value) => setActiveTab(value as TabValue)}>
+                        <TabsList className="w-full mb-6">
+                            <TabsTrigger value="comments" className="flex-1">Comments</TabsTrigger>
+                            <TabsTrigger value="faqs" className="flex-1">FAQs</TabsTrigger>
+                        </TabsList>
 
-                    <TabsContent value="comments">
-                        {isAuthenticated && (
-                            <div className="mb-6">
-                                <Textarea
-                                    value={newComment}
-                                    onChange={(e) => setNewComment(e.target.value)}
-                                    placeholder="Write a comment..."
-                                    className="mb-2"
-                                />
-                                <Button onClick={handleCommentSubmit}>Post Comment</Button>
-                            </div>
-                        )}
+                        <TabsContent value="comments">
+                            {isAuthenticated && (
+                                <div className="mb-6">
+                                    <Textarea
+                                        value={newComment}
+                                        onChange={(e) => setNewComment(e.target.value)}
+                                        placeholder="Write a comment..."
+                                        className="mb-2"
+                                    />
+                                    <Button onClick={handleCommentSubmit}>Post Comment</Button>
+                                </div>
+                            )}
 
-                        <div className="space-y-4">
-                            {comments.map((comment) => (
-                                <div key={comment._id} className="border-b pb-4">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <p className="font-medium">{comment.author.username}</p>
-                                            <p className="text-gray-600 mt-1">{comment.content}</p>
-                                            <div className="flex items-center mt-2 text-sm text-gray-500">
-                                                <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
-                                                <button
-                                                    onClick={() => handleLike(comment._id)}
-                                                    disabled={!isAuthenticated}
-                                                    className={`ml-4 flex items-center ${comment.likes.includes(user?._id || '') ? 'text-blue-500' : ''}`}
-                                                >
-                                                    <ThumbsUp className="h-4 w-4 mr-1" />
-                                                    {comment.likes.length}
-                                                </button>
-                                                {isAuthenticated && comment.author._id === user?._id && (
+                            <div className="space-y-4">
+                                {comments.map((comment) => (
+                                    <div key={comment._id} className="border-b pb-4">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <p className="font-medium">{comment.author.username}</p>
+                                                <p className="text-gray-600 mt-1">{comment.content}</p>
+                                                <div className="flex items-center mt-2 text-sm text-gray-500">
+                                                    <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
                                                     <button
-                                                        onClick={() => handleDelete(comment._id)}
-                                                        className="ml-4 flex items-center text-red-500"
+                                                        onClick={() => handleLike(comment._id)}
+                                                        disabled={!isAuthenticated}
+                                                        className={`ml-4 flex items-center ${comment.likes.includes(user?._id || '') ? 'text-blue-500' : ''}`}
                                                     >
-                                                        <Delete className="h-4 w-4" />
+                                                        <ThumbsUp className="h-4 w-4 mr-1" />
+                                                        {comment.likes.length}
                                                     </button>
-                                                )}
+                                                    {isAuthenticated && comment.author._id === user?._id && (
+                                                        <button
+                                                            onClick={() => handleDelete(comment._id)}
+                                                            className="ml-4 flex items-center text-red-500"
+                                                        >
+                                                            <Delete className="h-4 w-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                            {hasMore && (
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        setPage(prev => prev + 1);
-                                        fetchComments(page + 1);
-                                    }}
-                                    disabled={isLoading}
-                                    className="w-full mt-4"
-                                >
-                                    {isLoading ? "Loading..." : "Load More Comments"}
-                                </Button>
-                            )}
-                        </div>
-                    </TabsContent>
+                                ))}
+                                {hasMore && (
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            setPage(prev => prev + 1);
+                                            fetchComments(page + 1);
+                                        }}
+                                        disabled={isLoading}
+                                        className="w-full mt-4"
+                                    >
+                                        {isLoading ? "Loading..." : "Load More Comments"}
+                                    </Button>
+                                )}
+                            </div>
+                        </TabsContent>
 
-                    <TabsContent value="faqs">
-                        <div className="space-y-6">
-                            {recipe.author._id === user?._id && !showFAQForm && (
-                                <Button
-                                    onClick={() => setShowFAQForm(true)}
-                                    className="mb-4"
-                                >
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Create FAQ
-                                </Button>
-                            )}
+                        <TabsContent value="faqs">
+                            <div className="space-y-6">
+                                {recipe.author._id === user?._id && !showFAQForm && (
+                                    <Button
+                                        onClick={() => setShowFAQForm(true)}
+                                        className="mb-4"
+                                    >
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Create FAQ
+                                    </Button>
+                                )}
 
-                            {showFAQForm && (
-                                <div className="mb-6 space-y-4">
-                                    <Textarea
-                                        value={newFAQ.question}
-                                        onChange={(e) => setNewFAQ(prev => ({ ...prev, question: e.target.value }))}
-                                        placeholder="Question..."
-                                        className="mb-2"
-                                    />
-                                    <Textarea
-                                        value={newFAQ.answer}
-                                        onChange={(e) => setNewFAQ(prev => ({ ...prev, answer: e.target.value }))}
-                                        placeholder="Answer..."
-                                        className="mb-2"
-                                    />
-                                    <div className="flex space-x-2">
-                                        <Button onClick={handleFAQSubmit}>Submit FAQ</Button>
-                                        <Button 
-                                            variant="outline" 
-                                            onClick={() => {
-                                                setShowFAQForm(false);
-                                                setNewFAQ({ question: '', answer: '' });
-                                            }}
-                                        >
-                                            Cancel
-                                        </Button>
+                                {showFAQForm && (
+                                    <div className="mb-6 space-y-4">
+                                        <Textarea
+                                            value={newFAQ.question}
+                                            onChange={(e) => setNewFAQ(prev => ({ ...prev, question: e.target.value }))}
+                                            placeholder="Question..."
+                                            className="mb-2"
+                                        />
+                                        <Textarea
+                                            value={newFAQ.answer}
+                                            onChange={(e) => setNewFAQ(prev => ({ ...prev, answer: e.target.value }))}
+                                            placeholder="Answer..."
+                                            className="mb-2"
+                                        />
+                                        <div className="flex space-x-2">
+                                            <Button onClick={handleFAQSubmit}>Submit FAQ</Button>
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => {
+                                                    setShowFAQForm(false);
+                                                    setNewFAQ({ question: '', answer: '' });
+                                                }}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
 
-                            {faqs.map((faq) => (
-                                <div key={faq._id} className="border-b pb-4">
-                                    <h3 className="font-medium text-lg mb-2">{faq.question}</h3>
-                                    <p className="text-gray-600">{faq.answer}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </TabsContent>
-                </Tabs>
+                                {faqs.map((faq) => (
+                                    <div key={faq._id} className="border-b pb-4">
+                                        <h3 className="font-medium text-lg mb-2">{faq.question}</h3>
+                                        <p className="text-gray-600">{faq.answer}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+                </div>
             )}
         </div>
     );
