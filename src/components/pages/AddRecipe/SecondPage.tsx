@@ -86,7 +86,6 @@ const TemplateSelectionPage: React.FC<{
     const convertToPreview = ({ blocksString, data, className = '' }: ConvertToPreviewProps) => {
         if (!user) return
         const blockTypes = convertStringToBlockTypes(blocksString)
-        console.log(blockTypes)
         const convertedData = convertToRecipeData(data, user!)
         return (
             <div className={`flex flex-col gap-4 ${className}`}>
