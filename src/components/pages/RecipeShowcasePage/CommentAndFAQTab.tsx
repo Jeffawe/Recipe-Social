@@ -183,7 +183,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe 
             {!isAuthenticated && comments.length === 0 && faqs.length === 0 ? (
                 <div></div>
             ) : (
-                <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+                <div className="mt-8 rounded-lg shadow-md p-6">
                     <Tabs defaultValue="comments" onValueChange={(value) => setActiveTab(value as TabValue)}>
                         <TabsList className="w-full mb-6">
                             <TabsTrigger value="comments" className="flex-1">Comments</TabsTrigger>
