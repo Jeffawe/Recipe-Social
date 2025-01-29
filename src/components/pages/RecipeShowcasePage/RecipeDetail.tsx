@@ -145,6 +145,16 @@ const RecipePage: React.FC = () => {
     }
   };
 
+  const handleClick = async (recipe:RecipeData) => {
+    window.open(recipe.pageURL, '_blank')
+    alert("Help us improve our ML model!");
+    const isRecipe = confirm("Was this a recipe page?");
+    
+    if (isRecipe !== null) {
+      console.log("Wonderful. Thanks for the Reply")
+    }
+  }
+
   const handleDelete = async () => {
     try {
       await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/recipes/${recipe?._id}`, {
@@ -243,7 +253,7 @@ const RecipePage: React.FC = () => {
 
         {recipe?.external &&
           <div className="flex items-center justify-center">
-            <button onClick={() => window.open(recipe.pageURL, '_blank')} className="bg-gradient-to-br from-yellow-400 to-orange-500 hover:from-orange-400 hover:to-red-500 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-all">
+            <button onClick={() => handleClick(recipe) } className="bg-gradient-to-br from-yellow-400 to-orange-500 hover:from-orange-400 hover:to-red-500 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-all">
               Visit Page
             </button>
           </div>
