@@ -7,6 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Delete, ThumbsUp, Plus } from 'lucide-react';
 import { FAQ, Comment, RecipeData } from '@/components/types/auth';
 
+const MAX_COMMENTS = 20;
+const MAX_FAQ = 5;
+
 interface CommentAndFAQTabsProps {
     recipeId: string;
     recipe: RecipeData;
@@ -191,7 +194,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe 
                         </TabsList>
 
                         <TabsContent value="comments">
-                            {isAuthenticated && (
+                            {isAuthenticated && comments.length < MAX_COMMENTS && (
                                 <div className="mb-6">
                                     <Textarea
                                         value={newComment}
@@ -251,7 +254,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe 
 
                         <TabsContent value="faqs">
                             <div className="space-y-6">
-                                {recipe.author._id === user?._id && !showFAQForm && (
+                                {recipe.author._id === user?._id && faqs.length < MAX_FAQ && !showFAQForm && (
                                     <Button
                                         onClick={() => setShowFAQForm(true)}
                                         className="mb-4"
