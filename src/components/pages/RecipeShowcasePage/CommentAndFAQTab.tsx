@@ -202,7 +202,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe 
                                         placeholder="Write a comment..."
                                         className="mb-2"
                                     />
-                                    <Button onClick={handleCommentSubmit}>Post Comment</Button>
+                                    <Button onClick={handleCommentSubmit} className='bg-orange-500'>Post Comment</Button>
                                 </div>
                             )}
 
@@ -257,7 +257,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe 
                                 {recipe.author._id === user?._id && faqs.length < MAX_FAQ && !showFAQForm && (
                                     <Button
                                         onClick={() => setShowFAQForm(true)}
-                                        className="mb-4"
+                                        className="mb-4 bg-orange-500"
                                     >
                                         <Plus className="h-4 w-4 mr-2" />
                                         Create FAQ

@@ -5,25 +5,24 @@ interface BetaNoticeModalProps {
   initiallyOpen?: boolean;
 }
 
+const MODAL_EXPIRY_HOURS = 24;
+
 const BetaNoticeModal: React.FC<BetaNoticeModalProps> = () => {
     const [isOpen, setIsOpen] = useState(true);
 
-    // Check if modal has been shown before
     useEffect(() => {
-      const hasSeenModal = localStorage.getItem('betaModalSeen');
-      
-      // If modal hasn't been seen, set it to open
-      if (!hasSeenModal) {
+      const storedTime = localStorage.getItem("betaModalSeenTime");
+      const currentTime = Date.now();
+  
+      if (!storedTime || currentTime > parseInt(storedTime, 10)) {
+        // Show modal if no record exists or if expired
         setIsOpen(true);
-        localStorage.setItem('betaModalSeen', 'true');
-      }else{
-        
+        const expiryTime = currentTime + MODAL_EXPIRY_HOURS * 60 * 60 * 1000; // Current time + expiry time
+        localStorage.setItem("betaModalSeenTime", expiryTime.toString());
+      } else {
+        setIsOpen(false);
       }
     }, []);
-
-//   const handleClose = () => {
-//     setIsOpen(false);
-//   };
 
   const featuresInProgress = [
     "More recipe search filters",
