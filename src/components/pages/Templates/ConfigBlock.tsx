@@ -45,7 +45,6 @@ const BlockConfigPanel: React.FC<ConfigPanelProps> = ({ block, onConfigUpdate, o
     };
 
     const updateConfig = (): void => {
-        console.log(config)
         onConfigUpdate(block.id, config);
     };
 

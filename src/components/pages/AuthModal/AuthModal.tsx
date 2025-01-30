@@ -114,7 +114,7 @@ const AuthModal = () => {
       });
       auth.requestAccessToken();
     } catch (error) {
-      console.error('Google Sign In Error:', error);
+      //console.error('Google Sign In Error:', error);
       setError('Google sign in failed. Please try again.');
     }
   };

@@ -122,7 +122,7 @@ const TemplateEditor: React.FC = () => {
         navigate('/');
       }
     } catch (error) {
-      console.error('Error saving or using template:', error);
+      //console.error('Error saving or using template:', error);
       alert('Failed to save template. Please try again.');
     }
   };

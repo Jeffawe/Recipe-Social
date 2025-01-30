@@ -55,7 +55,6 @@ export const convertStringToBlockTypes = (blocksString: string): Block[] => {
                 config: {}
             }));
         } catch (error) {
-            console.error('Error parsing blocks string:', error);
             return [];
         }
     }

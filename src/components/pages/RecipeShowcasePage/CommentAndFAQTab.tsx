@@ -58,7 +58,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe 
             }
             setHasMore(data.hasMore);
         } catch (error) {
-            console.error('Error fetching comments:', error);
+            //console.error('Error fetching comments:', error);
         } finally {
             setIsLoading(false);
         }
@@ -73,7 +73,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe 
             });
             setFAQs(data);
         } catch (error) {
-            console.error('Error fetching FAQs:', error);
+
         }
     };
 
@@ -97,7 +97,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe 
             setComments(prev => [data, ...prev]);
             setNewComment("");
         } catch (error) {
-            console.error('Error posting comment:', error);
+
         }
     };
 
@@ -123,7 +123,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe 
             setNewFAQ({ question: '', answer: '' });
             setShowFAQForm(false);
         } catch (error) {
-            console.error('Error posting FAQ:', error);
+
         }
     };
 
@@ -147,7 +147,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe 
                 )
             );
         } catch (error) {
-            console.error('Error liking comment:', error);
+            //console.error('Error liking comment:', error);
         }
     };
 
@@ -166,7 +166,7 @@ const CommentAndFAQTabs: React.FC<CommentAndFAQTabsProps> = ({ recipeId, recipe 
             );
             setComments(prev => prev.filter(comment => comment._id !== commentId));
         } catch (error) {
-            console.error('Error Deleting comment:', error);
+            //console.error('Error Deleting comment:', error);
         }
     };
 

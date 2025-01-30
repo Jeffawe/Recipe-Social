@@ -60,7 +60,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                 setLikesCount(response.data.likes);
             }
         } catch (error) {
-            console.error('Error liking recipe:', error);
+            //console.error('Error liking recipe:', error);
         }
     };
 
@@ -93,7 +93,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                 setIsSaved(response.data.isSaved);
             }
         } catch (error) {
-            console.error('Error saving recipe:', error);
+            //console.error('Error saving recipe:', error);
         }
     };
 

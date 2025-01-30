@@ -146,7 +146,7 @@ const UpdateRecipe: React.FC = () => {
 
         } catch (error) {
             // Handle errors (e.g., 404 or network issues)
-            console.error('Error fetching recipe:', error);
+            //console.error('Error fetching recipe:', error);
             setError(
                 error instanceof Error ? error.message : 'An unexpected error occurred'
             );
