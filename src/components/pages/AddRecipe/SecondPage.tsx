@@ -58,7 +58,7 @@ const TemplateSelectionPage: React.FC<{
 
             setTemplates(uniqueTemplates);
         } catch (error) {
-            console.error('Error fetching templates:', error);
+            //console.error('Error fetching templates:', error);
             alert('Failed to load templates. Please try again.');
         } finally {
             setIsLoading(false);
