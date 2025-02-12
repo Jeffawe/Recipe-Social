@@ -152,7 +152,8 @@ export type FilterState = {
   limit: number;
   featured: boolean,
   popular: boolean,
-  latest: boolean
+  latest: boolean,
+  ingredients: string[];
 };
 
 // Define the state type

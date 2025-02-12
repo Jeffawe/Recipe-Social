@@ -43,7 +43,8 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
     featured: false,
     popular: false,
     latest: false,
-    limit: 20
+    limit: 20,
+    ingredients: []
   });
   //const [likes, setLikes] = useState<string[]>([])
 
@@ -59,6 +60,7 @@ const Explore: React.FC<ExploreRecipesProps> = ({ isMinimal = false }) => {
         ...(filters.popular && { popular: 'true' }),
         ...(filters.latest && { latest: 'true' }),
         ...(filters.categories.length && { category: filters.categories[0] }),
+        ...(filters.ingredients.length && { ingredients: filters.ingredients[0] }),
         ...(searchTerm && { search: searchTerm })
       });
 
